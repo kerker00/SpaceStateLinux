@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+  <!-- Closed door in its frame; the knob is cut out of the door. -->
+  <path fill="#2e3436" fill-rule="evenodd" d="M2 1h12v13h1v1H1v-1h1zm1 1v12h10V2z"/>
+  <path fill="#2e3436" fill-rule="evenodd" d="M4 3h8v11H4zm6.9 5.3a.9.9 0 1 0-1.8 0 .9.9 0 0 0 1.8 0z"/>
+</svg>
