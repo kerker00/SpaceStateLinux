@@ -20,6 +20,7 @@ let package = Package(
         .testTarget(name: "SpaceStateCoreTests", dependencies: [
             "SpaceStateCore",
             .product(name: "SpaceAPI", package: "SpaceStateKit"),
+            .product(name: "MainframeStatus", package: "SpaceStateKit"),
             .product(name: "SpacePushClient", package: "SpaceStateKit"),
         ]),
     ]
