@@ -23,7 +23,7 @@ Most of the app is the same everywhere. Only three integration points differ:
 
 | Desktop | Notifications | Tray icon (StatusNotifierItem) | Autostart |
 | --- | --- | --- | --- |
-| Hyprland (Omarchy) | mako, swaync, dunst | Waybar `tray` module | XDG autostart via uwsm, systemd user unit, or `exec-once` |
+| Hyprland (Omarchy 4) | Omarchy shell (quickshell); otherwise mako, swaync, dunst | Omarchy shell (quickshell) provides the StatusNotifierWatcher; otherwise Waybar `tray` | XDG autostart via uwsm, systemd user unit, or `exec-once` |
 | Sway, niri, river | mako, swaync, dunst | Waybar or ironbar `tray` | XDG autostart via uwsm, systemd user unit, or compositor config |
 | KDE Plasma | native | native | XDG autostart |
 | XFCE | xfce4-notifyd | panel "Status Tray" plugin | XDG autostart |
@@ -160,10 +160,10 @@ no Swift installation.
 
 | # | Question | Proposal |
 | --- | --- | --- |
-| D1 | Repository name | `SpaceStateLinux` (app id `net.grafixmafia.SpaceState`, binary `spacestate-desktop`) |
-| D2 | GTK binding | Decide after spike P1: adwaita-swift if it handles a background app with SNI cleanly, otherwise own thin bindings |
-| D3 | Language of texts | English first plus gettext from the start; German as the first translation |
-| D4 | GNOME without the AppIndicator extension | No tray. Notifications plus launcher and settings; show a hint to the extension in settings |
+| D1 | Repository name | **Decided:** `SpaceStateLinux`, app id `net.grafixmafia.SpaceState`, binary `spacestate-desktop` |
+| D2 | GTK binding | **Decided:** decide after spike P1: adwaita-swift if it handles a background app with SNI cleanly, otherwise own thin bindings |
+| D3 | Language of texts | **Decided:** English first plus gettext from the start; German as the first translation |
+| D4 | (later) GNOME without the AppIndicator extension | No tray. Notifications plus launcher and settings; show a hint to the extension in settings |
 | D5 | XEmbed-only trays (i3bar, polybar) | Document `snixembed`; no own XEmbed code |
 | D6 | Minimum versions | GTK 4.12, libadwaita 1.4, libnotify not needed; Swift 6.2 |
 | D7 | License | MIT, as the other SpaceState repositories |
