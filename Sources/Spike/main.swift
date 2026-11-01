@@ -56,8 +56,11 @@ final class SpikeApp {
             .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appending(path: "data/icons/hicolor/scalable/status")
         let runtime = ProcessInfo.processInfo.environment["XDG_RUNTIME_DIR"] ?? NSTemporaryDirectory()
-        let directory = URL(fileURLWithPath: runtime).appending(path: "spacestate-icons")
+        // A new directory per run: the shell caches icons by URL, which includes this path.
         let files = FileManager.default
+        let base = URL(fileURLWithPath: runtime).appending(path: "spacestate-icons")
+        try? files.removeItem(at: base)
+        let directory = base.appending(path: String(Int(Date().timeIntervalSince1970)))
         try? files.createDirectory(at: directory, withIntermediateDirectories: true)
         for name in (try? files.contentsOfDirectory(atPath: source.path)) ?? [] where name.hasSuffix(".svg") {
             let link = directory.appending(path: String(name.dropLast(4)))

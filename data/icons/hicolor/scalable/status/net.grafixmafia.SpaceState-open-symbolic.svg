@@ -1,5 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-  <!-- Open door: frame outline with the door swung open to the left. -->
-  <path fill="#2e3436" d="M4 1h11v14h-2V3H6V1z"/>
-  <path fill="#2e3436" d="M1 2.5 9 0.8V15.2L1 13.5z"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+  <!-- Material Design Icons "door-open" (Apache-2.0), as used by Nerd Fonts in the Omarchy bar. -->
+  <path fill="#2e3436" d="M12,3C10.89,3 10,3.89 10,5H3V19H2V21H22V19H21V5C21,3.89 20.11,3 19,3H12M12,5H19V19H12V5M5,11H7V13H5V11Z"/>
 </svg>
