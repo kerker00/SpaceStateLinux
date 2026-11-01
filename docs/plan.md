@@ -46,15 +46,31 @@ Consequences:
 
 ## Architecture
 
-One application, `spacestate-desktop`. It is a GTK 4 `GApplication` with the
-app id `net.grafixmafia.SpaceState` and runs as a single instance in the
-background:
+Which desktops we support depends on the D-Bus standards above, not on a
+widget toolkit. Only the settings window needs one. So the app is split into
+two processes:
 
 ```
-SpaceStateKit (ChangeFeed, reads) ──► Core ──► Notifier (GNotification)
-                                        │  ──► Tray (SNI + dbusmenu over GDBus)
-                                        └──► Settings window (GTK 4 / libadwaita)
+spacestate-desktop (background service, GIO only, no widget toolkit)
+  SpaceStateKit (ChangeFeed, reads) ──► Core ──► Notifier (GNotification)
+                                          ├──► Tray (SNI + dbusmenu over GDBus)
+                                          └──► watches the config files
+
+spacestate-settings (separate process, started on demand)
+  Settings window (plain GTK 4, GtkBuilder .ui files) ──► writes the config files
 ```
+
+- **`spacestate-desktop`** is a `GApplication` (GIO) with the app id
+  `net.grafixmafia.SpaceState`. It runs as a single instance in the
+  background and does not load GTK, so it runs the same way on every desktop
+  and window manager and needs little memory.
+- **`spacestate-settings`** is a `GtkApplication` with the app id
+  `net.grafixmafia.SpaceState.Settings`. The tray menu ("Settings…"), a click
+  on a notification and the launcher entry start it. It writes the
+  configuration files; the service notices the change through `GFileMonitor`
+  and reloads. No own D-Bus API is needed for that.
+- The UI is replaceable: a Qt/QML settings window for KDE could be added later
+  without touching the service. SpaceStateCLI edits the same `spaces` file.
 
 - **Core**, a Swift module without GTK and fully unit-tested:
   - configuration,
@@ -70,13 +86,13 @@ SpaceStateKit (ChangeFeed, reads) ──► Core ──► Notifier (GNotificati
   is needed. The icon shows open, closed or unknown; the menu has one line per
   followed space or room, "Settings…" and "Quit". If no StatusNotifierWatcher
   is present, the tray stays off and nothing fails.
-- **Settings window** (GTK 4 / libadwaita):
+- **Settings window** (plain GTK 4, separate process):
   - search the SpacePush directory and add spaces,
   - choose Mainframe rooms,
   - autostart on/off,
   - push server (advanced).
 
-  Launching the app again (launcher, `.desktop` entry) opens this window.
+  The launcher entry starts this window; the service is started by autostart.
 - **Configuration** lives in `$XDG_CONFIG_HOME/spacestate/`. The saved spaces in
   `spaces` are shared with SpaceStateCLI. Rooms and app settings go into a new
   `desktop.json`.
@@ -84,20 +100,36 @@ SpaceStateKit (ChangeFeed, reads) ──► Core ──► Notifier (GNotificati
   notifications. `spacestate notify` from SpaceStateCLI remains the minimal
   option without GTK.
 
-Everything uses GLib/GIO/GTK, which every desktop listed above provides, so a
-single dependency stack covers notifications, D-Bus, the tray and the window.
+Everything uses GLib/GIO, plus GTK 4 for the window. Every desktop listed
+above provides them, so one dependency stack covers notifications, D-Bus, the
+tray and the window.
 
-### Swift and GTK
+### Swift and GTK (decision D2)
 
-Swift calls C directly. Two options, decided by spike P1:
-- **adwaita-swift** (SwiftUI-like declarative API for libadwaita; moved to
-  git.aparoksha.dev, last GitHub release 0.2.6 in 2024). It saves boilerplate,
-  but its maintenance and how it fits a background app with SNI are open.
-- **Own thin C bindings:** a system library target for `gtk4`, `libadwaita-1`
-  and `gio-2.0` through pkg-config, plus small Swift wrappers for the few
-  widgets the settings window needs. More code, but no dependency risk.
+Swift calls C directly. Spike P1 showed that a background app with tray,
+notifications and a window works from Swift over C interop: SNI and dbusmenu
+in a small C module (GVariant construction needs variadic C functions), the
+rest from Swift. Decision:
 
-Either way, GTK code stays in a thin layer, and the logic stays in Core.
+- **Own thin bindings:** a system library target for `gtk4` and `gio-2.0`
+  through pkg-config, plus small Swift wrappers for the widgets the settings
+  window needs.
+- **GtkBuilder `.ui` files** describe the window declaratively. Swift only
+  loads them and connects signals, which keeps the wrapper code small.
+- **Plain GTK 4, no libadwaita.** libadwaita always looks like GNOME and ignores
+  the desktop theme. Plain GTK 4 follows the theme (Breeze on KDE, the XFCE
+  theme, Omarchy's GTK theme) and fits more desktops.
+
+Frameworks evaluated (November 2026):
+
+| Framework | Finding |
+| --- | --- |
+| [adwaita-swift](https://codeberg.org/aparoksha/adwaita-swift) | Last release 0.1.0 in October 2024; dependencies on unversioned `main` branches; needs Swift 6.3 and build plugins; no background mode, tray or notifications; creates its own SQLite file. Not used. |
+| [swift-cross-ui](https://github.com/moreSwift/swift-cross-ui) | Active (v0.10.0, September 2026), MIT, versioned dependencies, SwiftUI-like API on plain GTK 4. Still before 1.0 and without background or tray support. Watched as an option for the settings window. |
+| [SwiftGtk](https://github.com/rhx/SwiftGtk) | Generates the whole GTK API with gir2swift; heavy for one window. Not used. |
+| Qt/QML | Fits KDE best, but means C++ interop or a second language. Possible later as an extra settings frontend. |
+
+GTK code stays in a thin layer, and the logic stays in Core.
 
 ## Packaging and platforms
 
@@ -120,7 +152,7 @@ no Swift installation.
   - notification decisions,
   - dbusmenu layout as data.
 - **CI:**
-  - build and test in `swift:6.2-noble` with GTK 4 / libadwaita dev packages,
+  - build and test in `swift:6.2-noble` with GTK 4 dev packages,
   - build the Flatpak with `flatpak-builder`,
   - aarch64 build.
 - **Desktop smoke checklist** per desktop, run manually in VMs or live images:
@@ -143,7 +175,7 @@ no Swift installation.
 | P1 | Spike on Hyprland: Swift GTK 4 window, `GNotification`, SNI icon in Waybar; decide D2 | small prototype works, decision recorded |
 | P2 | Core and notifier: config, ChangeFeed, resync, notifications | notifications on Hyprland from a local and the production SpacePush |
 | P3 | Tray: SNI and dbusmenu | icon and menu in Waybar, KDE, XFCE |
-| P4 | Settings window: directory search, rooms, autostart, single instance | spaces managed without editing files |
+| P4 | Settings window as `spacestate-settings`: directory search, rooms, autostart; service reloads on change | spaces managed without editing files |
 | P5 | Packaging: AUR, then Flatpak | install on a fresh Arch and a fresh Fedora VM |
 | P6 | Desktop matrix: GNOME, Sway/niri, i3, Cinnamon/MATE; fixes and docs | smoke checklist passes, gaps documented |
 | P7 | Release 0.1.0 | tagged, packages published |
@@ -161,9 +193,9 @@ no Swift installation.
 | # | Question | Proposal |
 | --- | --- | --- |
 | D1 | Repository name | **Decided:** `SpaceStateLinux`, app id `net.grafixmafia.SpaceState`, binary `spacestate-desktop` |
-| D2 | GTK binding | **Decided:** decide after spike P1: adwaita-swift if it handles a background app with SNI cleanly, otherwise own thin bindings |
+| D2 | GTK binding | **Decided after spike P1:** own thin bindings with GtkBuilder `.ui` files, plain GTK 4 without libadwaita; service and settings window as separate processes (see "Swift and GTK") |
 | D3 | Language of texts | **Decided:** English first plus gettext from the start; German as the first translation |
 | D4 | (later) GNOME without the AppIndicator extension | No tray. Notifications plus launcher and settings; show a hint to the extension in settings |
 | D5 | XEmbed-only trays (i3bar, polybar) | Document `snixembed`; no own XEmbed code |
-| D6 | Minimum versions | GTK 4.12, libadwaita 1.4, libnotify not needed; Swift 6.2 |
+| D6 | Minimum versions | GTK 4.12, GLib 2.76, libnotify not needed; Swift 6.2 |
 | D7 | License | MIT, as the other SpaceState repositories |
