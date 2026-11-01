@@ -1,4 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
   <!-- Material Design Icons "door-open" (Apache-2.0), as used by Nerd Fonts in the Omarchy bar. -->
-  <path fill="#2e3436" d="M12,3C10.89,3 10,3.89 10,5H3V19H2V21H22V19H21V5C21,3.89 20.11,3 19,3H12M12,5H19V19H12V5M5,11H7V13H5V11Z"/>
+  <!-- Near-white base: the Omarchy shell keeps the luminance when tinting; Plasma replaces the stylesheet. -->
+  <style id="current-color-scheme">.ColorScheme-Text { color: #ffffff; }</style>
+  <path class="ColorScheme-Text" fill="currentColor" d="M12,3C10.89,3 10,3.89 10,5H3V19H2V21H22V19H21V5C21,3.89 20.11,3 19,3H12M12,5H19V19H12V5M5,11H7V13H5V11Z"/>
 </svg>
