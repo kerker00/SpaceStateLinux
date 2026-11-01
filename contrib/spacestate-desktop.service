@@ -1,0 +1,18 @@
+# Runs spacestate-desktop with the graphical session (an alternative to XDG autostart).
+# Install:
+#   cp contrib/spacestate-desktop.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload
+#   systemctl --user enable --now spacestate-desktop.service
+# Logs: journalctl --user -u spacestate-desktop
+[Unit]
+Description=SpaceState desktop notifications
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+ExecStart=%h/.local/bin/spacestate-desktop
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=graphical-session.target

@@ -173,7 +173,7 @@ no Swift installation.
 | --- | --- | --- |
 | P0 | Repo, plan, diagram (this branch) | plan reviewed |
 | P1 | Spike on Hyprland: Swift GTK 4 window, `GNotification`, SNI icon in Waybar; decide D2 | small prototype works, decision recorded |
-| P2 | Core and notifier: config, ChangeFeed, resync, notifications | notifications on Hyprland from a local and the production SpacePush |
+| P2 | Core and notifier: config, ChangeFeed, resync, notifications | notifications on Hyprland from a local and the production SpacePush. **Status:** works on Hyprland against a local SpacePush; production waits for the stream on Uberspace (O1–O3) and Kit 0.4.0 |
 | P3 | Tray: SNI and dbusmenu | icon and menu in Waybar, KDE, XFCE |
 | P4 | Settings window as `spacestate-settings`: directory search, rooms, autostart; service reloads on change | spaces managed without editing files |
 | P5 | Packaging: AUR, then Flatpak | install on a fresh Arch and a fresh Fedora VM |

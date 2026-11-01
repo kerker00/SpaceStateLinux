@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=SpaceState
+Comment=Notifications when hackerspaces open or close
+Exec=spacestate-desktop
+Icon=net.grafixmafia.SpaceState
+Terminal=false
+NoDisplay=true
+X-GNOME-Autostart-enabled=true
