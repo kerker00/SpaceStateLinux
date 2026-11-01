@@ -48,9 +48,24 @@ final class SpikeApp {
     var icon: String { "net.grafixmafia.SpaceState-\(open ? "open" : "closed")-symbolic" }
 
     /// Spike only: the icons from the repository. An installed app puts them into hicolor.
-    static let iconDirectory = URL(fileURLWithPath: #filePath)
-        .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
-        .appending(path: "data/icons/hicolor/scalable/status").path
+    /// The Omarchy shell (quickshell) loads `<IconThemePath>/<IconName>` without an
+    /// extension when the name is not in a theme, so the directory holds links
+    /// without ".svg"; Qt detects SVG from the content.
+    static let iconDirectory: String = {
+        let source = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "data/icons/hicolor/scalable/status")
+        let runtime = ProcessInfo.processInfo.environment["XDG_RUNTIME_DIR"] ?? NSTemporaryDirectory()
+        let directory = URL(fileURLWithPath: runtime).appending(path: "spacestate-icons")
+        let files = FileManager.default
+        try? files.createDirectory(at: directory, withIntermediateDirectories: true)
+        for name in (try? files.contentsOfDirectory(atPath: source.path)) ?? [] where name.hasSuffix(".svg") {
+            let link = directory.appending(path: String(name.dropLast(4)))
+            try? files.removeItem(at: link)
+            try? files.createSymbolicLink(at: link, withDestinationURL: source.appending(path: name))
+        }
+        return directory.path
+    }()
 
     func updateMenu() {
         let items: [(Int32, String, Bool)] = [

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-  <!-- Door frame with the door swung open. -->
-  <path fill="#2e3436" d="M2 1h12v13h1v1H1v-1h1zm1 1v12h1V3.2L9 2zm7 0.3L5 3.4V13.7l5 0.3zM11 2v12h2V2z"/>
-  <circle fill="#2e3436" cx="8.5" cy="8.3" r="0.8"/>
+  <!-- Open door: frame outline with the door swung open to the left. -->
+  <path fill="#2e3436" d="M4 1h11v14h-2V3H6V1z"/>
+  <path fill="#2e3436" d="M1 2.5 9 0.8V15.2L1 13.5z"/>
 </svg>

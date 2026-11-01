@@ -40,6 +40,12 @@ Consequences:
   usable: notifications keep working, and the settings window opens from the
   app launcher. Waybar users can also use the existing
   `spacestate watch --waybar --push` module instead of the tray.
+- **Icons** are monochrome `-symbolic` SVGs, installed into the hicolor theme,
+  so hosts find them by name and tint them like other panel icons. The Omarchy
+  shell (quickshell) loads an icon outside a theme from
+  `<IconThemePath>/<IconName>` without a file extension, and Qt only sees icon
+  directories that existed when the shell started. So development builds publish
+  extensionless links, and packages must install into hicolor.
 - **Autostart** is written as an XDG autostart entry, which most desktops honour,
   or requested from the Background portal under Flatpak. A systemd user unit is
   documented for tiling setups.
