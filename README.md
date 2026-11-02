@@ -12,10 +12,12 @@ The background service. It follows the SpacePush change stream for your spaces
 and rooms and shows a notification when one opens or closes. After every
 (re)connection it reads the current states, so a change missed while offline
 is shown once. A newer notification for the same space or room replaces the older.
+While the stream stays unavailable, it reads the states every few minutes instead, so
+notifications continue with a delay.
 
 A tray icon (StatusNotifierItem) shows whether anything you follow is open, and
-its menu lists each space and room with its state. While the stream is not
-connected, states are shown as unknown. Without a tray host the service keeps
+its menu lists each space and room with its state. When neither the stream nor
+the read API answers, states are shown as unknown. Without a tray host the service keeps
 running and shows notifications only; `--no-tray` leaves the icon out on purpose.
 
 It needs GLib/GIO 2.76 or later and a notification daemon (any desktop, or

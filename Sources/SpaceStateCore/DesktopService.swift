@@ -44,11 +44,27 @@ public struct DesktopService: Sendable {
                   texts: texts, show: show, status: status, name: configuration.displayName, log: log)
     }
 
+    /// From this wait until the next attempt on, the stream counts as unavailable rather than
+    /// briefly interrupted, so the states are read instead. Each failed attempt then reads once,
+    /// which spaces the reads out as far as the attempts (up to five minutes). A stream that
+    /// ends normally waits for the server's shorter retry hint and causes no read.
+    public static let readingDelay: Duration = .seconds(30)
+
     /// Runs until cancelled, or until the server refuses the subscriptions.
     public func run() async {
         var board = StateBoard(texts: texts)
         func publish(connected: Bool) async {
             await status(board.trayStatus(following: subscriptions, connected: connected, name: name))
+        }
+        /// Returns whether anything could be read.
+        func resync() async -> Bool {
+            let readings = await read(subscriptions)
+            for reading in readings {
+                if let alert = board.resync(reading.topic, name: reading.name, state: reading.state) {
+                    await show(alert)
+                }
+            }
+            return !readings.isEmpty
         }
         await publish(connected: false)
         guard !subscriptions.isEmpty else {
@@ -61,18 +77,16 @@ public struct DesktopService: Sendable {
                 case .connected:
                     log("Connected; following \(subscriptions.count) topic\(subscriptions.count == 1 ? "" : "s").")
                     board.keep(only: subscriptions)
-                    for reading in await read(subscriptions) {
-                        if let alert = board.resync(reading.topic, name: reading.name, state: reading.state) {
-                            await show(alert)
-                        }
-                    }
+                    _ = await resync()
                     await publish(connected: true)
                 case .change(let change):
                     if let alert = board.apply(change) { await show(alert) }
                     await publish(connected: true)
                 case .disconnected(let reason, let retryIn):
                     log("Change stream: \(reason); reconnecting in \(retryIn.components.seconds) s.")
-                    await publish(connected: false)
+                    // States just read are current, so the tray can show them without a stream.
+                    let current = retryIn >= Self.readingDelay ? await resync() : false
+                    await publish(connected: current)
                 }
             }
         } catch is CancellationError {

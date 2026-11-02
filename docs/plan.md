@@ -83,6 +83,7 @@ spacestate-settings (separate process, started on demand)
   - the followed subscriptions (spaces and Mainframe rooms),
   - the current states,
   - the ChangeFeed loop with resync through the read API after every connection,
+  - reading the states while the stream stays unavailable, for example at its connection limit,
   - deciding what to notify.
 - **Notifier:** `GNotification` with one id per topic, so a newer state replaces
   the older one. Clicking a notification opens the settings window, or later the

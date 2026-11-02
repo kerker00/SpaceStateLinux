@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- While the change stream stays unavailable, for example at the server's connection
+  limit, read the states every few minutes, so notifications continue with a delay.
+- Do not log reads that a configuration reload cancels.
+
 ## 0.1.0 — 2026-11-02
 
 First version, as source only. It is tested on Hyprland with the Omarchy shell; other
