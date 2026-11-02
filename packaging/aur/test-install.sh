@@ -34,5 +34,6 @@ if [ "$status" != 124 ]; then
     echo "spacestate-settings ended by itself with status $status." >&2
     exit 1
 fi
-test -s /usr/share/locale/de/LC_MESSAGES/spacestate.mo
+# The container's pacman.conf does not extract translations, so this looks into the package.
+bsdtar -tf /home/builder/pkg/spacestate-desktop-*.pkg.tar.zst | grep -q 'usr/share/locale/de/LC_MESSAGES/spacestate.mo'
 echo 'The package installs and runs.'
