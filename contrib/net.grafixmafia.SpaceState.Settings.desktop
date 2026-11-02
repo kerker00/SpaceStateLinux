@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=SpaceState
+Comment=Choose the hackerspaces to follow
+Exec=spacestate-settings
+Icon=net.grafixmafia.SpaceState
+Terminal=false
+Categories=Network;Settings;

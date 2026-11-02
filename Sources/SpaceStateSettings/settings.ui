@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.12"/>
+  <object class="GtkApplicationWindow" id="window">
+    <property name="title" translatable="yes">SpaceState Settings</property>
+    <property name="default-width">480</property>
+    <property name="default-height">560</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="GtkNotebook">
+            <property name="vexpand">true</property>
+            <child>
+              <object class="GtkNotebookPage">
+                <property name="tab-label" translatable="yes">Spaces</property>
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">12</property>
+                    <property name="margin-start">12</property>
+                    <property name="margin-end">12</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">12</property>
+                    <child>
+                      <object class="GtkSearchEntry" id="search">
+                        <property name="placeholder-text" translatable="yes">Search the directory to add a space</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <property name="vexpand">true</property>
+                        <property name="hscrollbar-policy">never</property>
+                        <property name="has-frame">true</property>
+                        <property name="child">
+                          <object class="GtkListBox" id="spaces">
+                            <property name="selection-mode">none</property>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkNotebookPage">
+                <property name="tab-label" translatable="yes">Mainframe Rooms</property>
+                <property name="child">
+                  <object class="GtkScrolledWindow">
+                    <property name="hscrollbar-policy">never</property>
+                    <property name="child">
+                      <object class="GtkListBox" id="rooms">
+                        <property name="selection-mode">none</property>
+                        <property name="margin-start">12</property>
+                        <property name="margin-end">12</property>
+                        <property name="margin-top">12</property>
+                        <property name="margin-bottom">12</property>
+                      </object>
+                    </property>
+                  </object>
+                </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkNotebookPage">
+                <property name="tab-label" translatable="yes">General</property>
+                <property name="child">
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">18</property>
+                    <property name="margin-start">12</property>
+                    <property name="margin-end">12</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">12</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="spacing">12</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Start with the session</property>
+                            <property name="hexpand">true</property>
+                            <property name="xalign">0</property>
+                            <property name="mnemonic-widget">autostart</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="autostart">
+                            <property name="valign">center</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkExpander">
+                        <property name="label" translatable="yes">Advanced</property>
+                        <property name="child">
+                          <object class="GtkGrid">
+                            <property name="row-spacing">6</property>
+                            <property name="column-spacing">12</property>
+                            <property name="margin-top">12</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Push server</property>
+                                <property name="xalign">0</property>
+                                <layout><property name="column">0</property><property name="row">0</property></layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkEntry" id="push_server">
+                                <property name="hexpand">true</property>
+                                <layout><property name="column">1</property><property name="row">0</property></layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Stream server</property>
+                                <property name="xalign">0</property>
+                                <layout><property name="column">0</property><property name="row">1</property></layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkEntry" id="stream_server">
+                                <property name="hexpand">true</property>
+                                <property name="placeholder-text" translatable="yes">Same as the push server</property>
+                                <layout><property name="column">1</property><property name="row">1</property></layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="apply_servers">
+                                <property name="label" translatable="yes">Apply</property>
+                                <property name="halign">end</property>
+                                <layout><property name="column">1</property><property name="row">2</property></layout>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
+                  </object>
+                </property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel" id="status">
+            <property name="xalign">0</property>
+            <property name="wrap">true</property>
+            <property name="margin-start">12</property>
+            <property name="margin-end">12</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

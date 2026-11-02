@@ -36,7 +36,7 @@ final class DesktopApp: @unchecked Sendable {
         let startup: @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?) -> Void = { _, data in
             DesktopApp.from(data).startup()
         }
-        // A second launch only activates this instance; the settings window will open here (P4).
+        // A second launch only activates this instance; the launcher starts the settings window itself.
         let activate: @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?) -> Void = { _, _ in }
         connect(app, "startup", context, startup)
         connect(app, "activate", context, activate)
@@ -63,6 +63,7 @@ final class DesktopApp: @unchecked Sendable {
         g_unix_signal_add(SIGTERM, quit, context)
         g_unix_signal_add(SIGINT, quit, context)
         if !CommandLine.arguments.contains("--no-tray") { startTray() }
+        addSettingsAction()
         watchConfiguration()
         reload()
     }
@@ -102,10 +103,27 @@ final class DesktopApp: @unchecked Sendable {
         return true
     }
 
+    /// `app.settings`, the default action of a notification: a click on it opens the settings window.
+    func addSettingsAction() {
+        let action = g_simple_action_new("settings", nil)!
+        let activated: @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?, UnsafeMutableRawPointer?) -> Void = { _, _, data in
+            DesktopApp.from(data).openSettings()
+        }
+        connect(UnsafeMutableRawPointer(action), "activate", context, activated)
+        g_action_map_add_action(OpaquePointer(app), action)
+        g_object_unref(UnsafeMutableRawPointer(action))
+    }
+
+    /// The window's own GtkApplication brings an open window to the front instead of opening another.
+    func openSettings() {
+        guard settingsInstalled else { return log("\(settingsProgram) is not installed.") }
+        if g_spawn_command_line_async(settingsProgram, nil) == 0 { log("Cannot start \(settingsProgram).") }
+    }
+
     func menuClicked(_ id: Int32) {
         switch id {
         case TrayMenu.settingsId:
-            if g_spawn_command_line_async(settingsProgram, nil) == 0 { log("Cannot start \(settingsProgram).") }
+            openSettings()
         case TrayMenu.quitId:
             g_application_quit(app)
         default:
@@ -167,6 +185,7 @@ final class DesktopApp: @unchecked Sendable {
     func notify(_ alert: Alert) {
         let notification = g_notification_new(alert.summary)
         g_notification_set_body(notification, alert.body)
+        g_notification_set_default_action(notification, "app.settings")
         g_application_send_notification(app, alert.id, notification)
         g_object_unref(UnsafeMutableRawPointer(notification))
     }
