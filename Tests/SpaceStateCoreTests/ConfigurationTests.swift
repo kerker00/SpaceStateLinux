@@ -35,6 +35,21 @@ struct ConfigurationTests {
         #expect(with.subscriptions == [PushSubscription(endpoint: mainframe), PushSubscription(endpoint: mainframe, room: "lab3d")])
     }
 
+    @Test func installedIconsAreFoundLikeTheIconThemeSpecificationSays() {
+        let icon = "icons/hicolor/scalable/status/net.grafixmafia.SpaceState-open-symbolic.svg"
+        func find(_ environment: [String: String], in roots: [String]) -> String? {
+            let files = Set(roots.map { "\($0)/\(icon)" })
+            return Paths.installedIcons(environment, exists: { files.contains($0) })
+        }
+        let status = "/icons/hicolor/scalable/status"
+        #expect(find(["HOME": "/h"], in: ["/h/.local/share", "/usr/share"]) == "/h/.local/share\(status)")
+        #expect(find(["HOME": "/h"], in: ["/usr/share"]) == "/usr/share\(status)")
+        #expect(find(["HOME": "/h", "XDG_DATA_HOME": "/d"], in: ["/d"]) == "/d\(status)")
+        #expect(find(["HOME": "/h", "XDG_DATA_DIRS": "/a:/b"], in: ["/b"]) == "/b\(status)")
+        #expect(find(["HOME": "/h", "XDG_DATA_DIRS": "/a:/b"], in: ["/usr/share"]) == nil)
+        #expect(find(["HOME": "/h"], in: []) == nil)
+    }
+
     @Test func displayNamesPreferTheSavedName() {
         let named = URL(string: "https://status.mainframe.io/api/spaceInfo")!
         let unnamed = URL(string: "https://example.org/spaceapi.json")!

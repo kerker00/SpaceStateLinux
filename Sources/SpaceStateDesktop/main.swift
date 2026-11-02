@@ -76,7 +76,10 @@ final class DesktopApp: @unchecked Sendable {
             DesktopApp.from(data).menuClicked(id)
         }
         tray = sn_item_new("spacestate", "SpaceState", iconName(.unknown), nil, clicked, context)
-        if let directory = ProcessInfo.processInfo.environment["SPACESTATE_ICONDIR"], let links = publishIcons(from: directory) {
+        // The name alone needs an icon directory the host knew when it started, so a new
+        // installation would otherwise show a placeholder until the next login.
+        let directory = ProcessInfo.processInfo.environment["SPACESTATE_ICONDIR"] ?? Paths.installedIcons()
+        if let directory, let links = publishIcons(from: directory) {
             sn_item_set_icon_theme_path(tray, links)
         }
     }
