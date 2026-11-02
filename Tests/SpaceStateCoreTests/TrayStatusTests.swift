@@ -37,7 +37,7 @@ struct TrayStatusTests {
 
     @Test func linesFollowTheTopicOrderAndFallBackToTheName() {
         let status = status([(room, "open")])
-        #expect(status.lines == [.init(name: "Fallback", state: "Unknown"), .init(name: "Name of radstelle", state: "Open", indented: true)])
+        #expect(status.lines == [.init(name: "Fallback", state: "Unknown"), .init(name: "Name of radstelle", state: "Open")])
         #expect(status.tooltip == "Fallback: Unknown\nName of radstelle: Open")
     }
 
@@ -69,17 +69,13 @@ struct TrayStatusTests {
         #expect(menu.items.first { $0.id == TrayMenu.settingsId }?.enabled == false)
     }
 
-    @Test func roomsUnderTheirSpaceAreIndentedWithTheirOwnName() {
+    @Test func roomsStandFlatWithTheirWholeName() {
         var board = StateBoard()
         _ = board.resync(space, name: "Mainframe", state: "open")
         _ = board.resync(room, name: "Mainframe · Radstelle", state: "closed")
         let status = board.trayStatus(following: [space, room], connected: true, name: { _ in "" })
         #expect(TrayMenu(status, settingsAvailable: false).items.prefix(2).map(\.label)
-            == ["Mainframe — Open", "\u{2003}Radstelle — Closed"])
-        #expect(status.tooltip == "Mainframe: Open\nMainframe · Radstelle: Closed")
-        // Without its space in the list, the room keeps its whole name.
-        let alone = board.trayStatus(following: [room], connected: true, name: { _ in "" })
-        #expect(TrayMenu(alone, settingsAvailable: false).items[0].label == "Mainframe · Radstelle — Closed")
+            == ["Mainframe — Open", "Mainframe · Radstelle — Closed"])
     }
 
     @Test func underscoresInNamesStayLiteral() {
