@@ -4,6 +4,14 @@
 
 - While the change stream stays unavailable, for example at the server's connection
   limit, read the states every few minutes, so notifications continue with a delay.
+- A saved space outside SpacePush's directory no longer stops all notifications. The
+  server refuses the whole stream then, so the states are read every five minutes.
+- A lost log no longer ends the service, for example after the terminal it started from
+  closed.
+- The settings window shows whether the background service runs, and can start it.
+- The settings window follows changes by other programs, such as `spacestate add`.
+- A failed load no longer shows "Loading…" for good.
+- Add `--version` to both programs.
 - Do not log reads that a configuration reload cancels.
 - Add a German translation, an application icon and an AUR package definition.
 - Use the same state texts as the SpaceState apps: "Keyholders only" and "Members only".

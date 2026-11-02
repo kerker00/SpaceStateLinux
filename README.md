@@ -12,8 +12,9 @@ The background service. It follows the SpacePush change stream for your spaces
 and rooms and shows a notification when one opens or closes. After every
 (re)connection it reads the current states, so a change missed while offline
 is shown once. A newer notification for the same space or room replaces the older.
-While the stream stays unavailable, it reads the states every few minutes instead, so
-notifications continue with a delay.
+While the stream stays unavailable, or SpacePush refuses it because a saved space is not
+in its directory, it reads the states every few minutes instead, so notifications
+continue with a delay.
 
 A tray icon (StatusNotifierItem) shows whether anything you follow is open, and
 its menu lists each space and room with its state. When neither the stream nor
@@ -85,7 +86,8 @@ and a click on a notification open it, and so does the launcher with
 
 - **Spaces:** search the SpacePush directory, add and remove spaces.
 - **Mainframe Rooms:** choose rooms to follow.
-- **General:** start with the session, and the servers under Advanced.
+- **General:** whether the background service runs, with a button to start it, start
+  with the session, and the servers under Advanced.
 
 It only writes the configuration files, and the running service reloads them. Lines
 it does not use in `spaces` stay as they are, and a `desktop.json` it cannot read is
