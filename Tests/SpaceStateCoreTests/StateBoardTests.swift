@@ -24,7 +24,7 @@ struct StateBoardTests {
         var board = StateBoard()
         let alert = board.apply(change("radstelle", name: "Mainframe · Radstelle", to: "keyholder"))
         #expect(alert?.id == "https://status.mainframe.io/api/spaceInfo|radstelle")
-        #expect(alert?.body == "Keyholder present")
+        #expect(alert?.body == "Keyholders only")
         #expect(board.entries[room]?.state == "keyholder")
     }
 

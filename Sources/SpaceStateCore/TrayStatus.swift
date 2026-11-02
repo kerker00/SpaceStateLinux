@@ -27,7 +27,8 @@ public struct TrayStatus: Sendable, Equatable {
         self.tooltip = tooltip
     }
 
-    /// Whether anyone can be there. A state only a newer server knows counts as neither.
+    /// Whether someone can get in, also when only keyholders or members can.
+    /// A state only a newer server knows counts as neither.
     static func isOpen(_ state: String) -> Bool? {
         switch state {
         case "open", "open_plus", "keyholder", "member", "closing": true
