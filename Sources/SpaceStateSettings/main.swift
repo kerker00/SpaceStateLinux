@@ -24,9 +24,20 @@ final class SettingsApp: @unchecked Sendable {
     var directory: [SpaceChoice]?
     var loadingDirectory = false
     var rooms: [RoomChoice] = []
+    var roomsFailed = false
+    /// What the lists show, to notice when another program changes the files.
+    var shownSpaces: [SavedSpace] = []
+    var shownRooms: [DesktopSettings.Room] = []
+    var monitor: UnsafeMutablePointer<GFileMonitor>?
+    var refreshScheduled = false
+    var serviceState: Widget!
+    var startService: Widget!
+    var serviceHintShown = false
 
     init() {
         app = gtk_application_new("net.grafixmafia.SpaceState.Settings", GApplicationFlags(rawValue: 0))
+        g_application_add_main_option(gApplication, "version", 0, GOptionFlags(rawValue: 0), G_OPTION_ARG_NONE,
+                                      "Show the version", nil)
     }
 
     var gApplication: UnsafeMutablePointer<GApplication> {
@@ -69,6 +80,8 @@ final class SettingsApp: @unchecked Sendable {
         pushServer = widget("push_server")
         streamServer = widget("stream_server")
         statusLabel = widget("status")
+        serviceState = widget("service_state")
+        startService = widget("start_service")
 
         on(search, "search-changed") { [unowned self] in
             self.loadDirectoryIfNeeded()
@@ -77,12 +90,84 @@ final class SettingsApp: @unchecked Sendable {
         gtk_switch_set_active(OpaquePointer(autostart), store.autostart ? 1 : 0)
         onNotify(autostart, "active") { [unowned self] in self.autostartChanged() }
         on(widget("apply_servers"), "clicked") { [unowned self] in self.applyServers() }
+        on(startService, "clicked") { [unowned self] in self.startBackgroundService() }
 
         loadServers()
         renderSpaces()
         renderRooms()
         loadDirectoryIfNeeded()
         loadRooms()
+        watchFiles()
+        watchService()
+    }
+
+    /// Lists follow other programs, such as `spacestate add`, a moment after they write.
+    func watchFiles() {
+        let directory = store.spacesFile.deletingLastPathComponent()
+        try? FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let file = g_file_new_for_path(directory.path)
+        monitor = g_file_monitor_directory(file, GFileMonitorFlags(rawValue: 0), nil, nil)
+        g_object_unref(UnsafeMutableRawPointer(file))
+        guard let monitor else { return }
+        let changed: @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?, UnsafeMutableRawPointer?,
+                                     UInt32, UnsafeMutableRawPointer?) -> Void = { _, _, _, _, data in
+            SettingsApp.from(data).scheduleRefresh()
+        }
+        g_signal_connect_data(monitor, "changed", unsafeBitCast(changed, to: GCallback.self),
+                              Unmanaged.passUnretained(self).toOpaque(), nil, GConnectFlags(rawValue: 0))
+    }
+
+    static func from(_ data: UnsafeMutableRawPointer?) -> SettingsApp {
+        Unmanaged<SettingsApp>.fromOpaque(data!).takeUnretainedValue()
+    }
+
+    func scheduleRefresh() {
+        guard !refreshScheduled else { return }
+        refreshScheduled = true
+        let fire: @convention(c) (UnsafeMutableRawPointer?) -> gboolean = { data in
+            let app = SettingsApp.from(data)
+            app.refreshScheduled = false
+            app.refresh()
+            return 0
+        }
+        g_timeout_add(300, fire, Unmanaged.passUnretained(self).toOpaque())
+    }
+
+    /// Only when the content differs, so a change made in this window does not rebuild its rows.
+    func refresh() {
+        if let spaces = try? store.spaces(), spaces != shownSpaces { renderSpaces() }
+        if let followed = try? store.settings().rooms, followed != shownRooms { renderRooms() }
+    }
+
+    /// The window only writes files, so without the service nothing would happen.
+    func watchService() {
+        let appeared: @convention(c) (OpaquePointer?, UnsafePointer<CChar>?, UnsafePointer<CChar>?, UnsafeMutableRawPointer?) -> Void = { _, _, _, data in
+            SettingsApp.from(data).serviceChanged(running: true)
+        }
+        let vanished: @convention(c) (OpaquePointer?, UnsafePointer<CChar>?, UnsafeMutableRawPointer?) -> Void = { _, _, data in
+            SettingsApp.from(data).serviceChanged(running: false)
+        }
+        g_bus_watch_name(G_BUS_TYPE_SESSION, "net.grafixmafia.SpaceState", GBusNameWatcherFlags(rawValue: 0), appeared, vanished,
+                         Unmanaged.passUnretained(self).toOpaque(), nil)
+    }
+
+    func serviceChanged(running: Bool) {
+        gtk_label_set_text(OpaquePointer(serviceState), running ? translate("The background service is running.")
+                                                                : translate("The background service is not running."))
+        gtk_widget_set_visible(startService, running ? 0 : 1)
+        if running, serviceHintShown {
+            show("")
+        } else if !running {
+            show(translate("Nothing is followed while the background service is not running. Start it under General."))
+        }
+        serviceHintShown = !running
+    }
+
+    func startBackgroundService() {
+        guard isInstalled("spacestate-desktop"), g_spawn_command_line_async("spacestate-desktop", nil) != 0 else {
+            show(translate("spacestate-desktop is not on your PATH, so it cannot be started."))
+            return
+        }
     }
 
     func show(_ message: String) {
@@ -120,7 +205,7 @@ final class SettingsApp: @unchecked Sendable {
                     self.directory = choices
                     self.renderSpaces()
                 case .failure:
-                    self.show(translate("Could not load the directory. Search again to retry."))
+                    self.renderSpaces()
                 }
             }
         }
@@ -136,6 +221,7 @@ final class SettingsApp: @unchecked Sendable {
             show(error)
             return
         }
+        shownSpaces = followed
         let query = text(of: search)
         if query.trimmingCharacters(in: .whitespaces).isEmpty {
             for space in followed {
@@ -146,7 +232,8 @@ final class SettingsApp: @unchecked Sendable {
             return
         }
         guard let directory else {
-            gtk_list_box_append(list, row(translate("Loading the directory…")))
+            gtk_list_box_append(list, row(loadingDirectory ? translate("Loading the directory…")
+                                                           : translate("Could not load the directory. Search again to retry.")))
             return
         }
         let endpoints = Set(followed.map(\.endpoint))
@@ -186,10 +273,11 @@ final class SettingsApp: @unchecked Sendable {
                 switch result {
                 case .success(let rooms):
                     self.rooms = rooms
-                    self.renderRooms()
+                    self.roomsFailed = false
                 case .failure:
-                    self.show(translate("Could not load the Mainframe rooms."))
+                    self.roomsFailed = true
                 }
+                self.renderRooms()
             }
         }
     }
@@ -205,6 +293,7 @@ final class SettingsApp: @unchecked Sendable {
             show(error)
             return
         }
+        shownRooms = followed
         let extra = followed.filter { room in !rooms.contains { $0.room == room } }
         let rows = rooms.map { (title: $0.name, room: $0.room) } + extra.map { (title: $0.room, room: $0) }
         for item in rows {
@@ -216,6 +305,7 @@ final class SettingsApp: @unchecked Sendable {
             on(check, "toggled") { [unowned self] in
                 do {
                     try self.store.setRoom(item.room, followed: gtk_check_button_get_active(button) != 0)
+                    self.shownRooms = try self.store.settings().rooms
                     self.show("")
                 } catch {
                     self.show(error)
@@ -223,7 +313,10 @@ final class SettingsApp: @unchecked Sendable {
             }
             gtk_list_box_append(list, check)
         }
-        if rows.isEmpty { gtk_list_box_append(list, row(translate("Loading the rooms…"))) }
+        if rows.isEmpty {
+            gtk_list_box_append(list, row(roomsFailed ? translate("Could not load the Mainframe rooms.")
+                                                      : translate("Loading the rooms…")))
+        }
     }
 
     // MARK: General
@@ -254,6 +347,7 @@ final class SettingsApp: @unchecked Sendable {
             show(translate("Saved."))
             directory = nil
             loadDirectoryIfNeeded()
+            renderSpaces()
             loadRooms()
         } catch {
             show(error)
@@ -274,5 +368,10 @@ extension Result where Failure == any Error {
 setlocale(LC_ALL, "")
 bindtextdomain(textDomain, ProcessInfo.processInfo.environment["SPACESTATE_LOCALEDIR"] ?? "/usr/share/locale")
 bind_textdomain_codeset(textDomain, "UTF-8")
+
+if CommandLine.arguments.contains("--version") {
+    print(version)
+    exit(0)
+}
 
 exit(SettingsApp().run())

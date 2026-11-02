@@ -50,6 +50,7 @@ func publishIcons(from source: String) -> String? {
     return directory.path
 }
 
+/// A lost log must not end the service, for example after the terminal it started from closed.
 func log(_ line: String) {
-    FileHandle.standardError.write(Data("\(line)\n".utf8))
+    try? FileHandle.standardError.write(contentsOf: Data("\(line)\n".utf8))
 }

@@ -24,6 +24,8 @@ final class DesktopApp: @unchecked Sendable {
         app = g_application_new("net.grafixmafia.SpaceState", GApplicationFlags(rawValue: 0))
         g_application_add_main_option(app, "no-tray", 0, GOptionFlags(rawValue: 0), G_OPTION_ARG_NONE,
                                       "Show notifications only, without a tray icon", nil)
+        g_application_add_main_option(app, "version", 0, GOptionFlags(rawValue: 0), G_OPTION_ARG_NONE,
+                                      "Show the version", nil)
     }
 
     var context: UnsafeMutableRawPointer { Unmanaged.passUnretained(self).toOpaque() }
@@ -207,6 +209,11 @@ setlocale(LC_ALL, "")
 bindtextdomain(textDomain, ProcessInfo.processInfo.environment["SPACESTATE_LOCALEDIR"] ?? "/usr/share/locale")
 bind_textdomain_codeset(textDomain, "UTF-8")
 g_set_application_name("SpaceState")
+
+if CommandLine.arguments.contains("--version") {
+    print(version)
+    exit(0)
+}
 
 let desktop = DesktopApp()
 let status = desktop.run()
