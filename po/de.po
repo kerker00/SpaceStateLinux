@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: SpaceStateLinux\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 20:28+0100\n"
+"POT-Creation-Date: 2026-11-02 20:35+0100\n"
 "Language: de\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -57,67 +57,63 @@ msgstr "Einstellungen…"
 msgid "Quit"
 msgstr "Beenden"
 
-#: Sources/SpaceStateSettings/main.swift:155
+#: Sources/SpaceStateSettings/main.swift:157
 msgid "The background service is running."
 msgstr "Der Hintergrunddienst läuft."
 
-#: Sources/SpaceStateSettings/main.swift:156
+#: Sources/SpaceStateSettings/main.swift:158
 msgid "The background service is not running."
 msgstr "Der Hintergrunddienst läuft nicht."
 
-#: Sources/SpaceStateSettings/main.swift:161
+#: Sources/SpaceStateSettings/main.swift:163
 msgid "Nothing is followed while the background service is not running. Start it under General."
 msgstr "Solange der Hintergrunddienst nicht läuft, wird nichts verfolgt. Starte ihn unter „Allgemein“."
 
-#: Sources/SpaceStateSettings/main.swift:168
+#: Sources/SpaceStateSettings/main.swift:170
 msgid "spacestate-desktop is not on your PATH, so it cannot be started."
 msgstr "spacestate-desktop liegt nicht im PATH und kann deshalb nicht gestartet werden."
 
-#: Sources/SpaceStateSettings/main.swift:180
+#: Sources/SpaceStateSettings/main.swift:182
 msgid "%@ cannot be read. Fix or remove it to change these settings."
 msgstr "%@ kann nicht gelesen werden. Korrigiere oder entferne die Datei, um diese Einstellungen zu ändern."
 
-#: Sources/SpaceStateSettings/main.swift:182
+#: Sources/SpaceStateSettings/main.swift:184
 msgid "“%@” is not a valid server address."
 msgstr "„%@“ ist keine gültige Serveradresse."
 
-#: Sources/SpaceStateSettings/main.swift:231
-msgid "No spaces followed yet. Search above to add one."
-msgstr "Noch kein Space ausgewählt. Suche oben, um einen hinzuzufügen."
-
-#: Sources/SpaceStateSettings/main.swift:235
+#: Sources/SpaceStateSettings/main.swift:232
 msgid "Loading the directory…"
 msgstr "Das Verzeichnis wird geladen…"
 
-#: Sources/SpaceStateSettings/main.swift:236
+#: Sources/SpaceStateSettings/main.swift:233
 msgid "Could not load the directory. Search again to retry."
 msgstr "Das Verzeichnis konnte nicht geladen werden. Suche erneut, um es noch einmal zu versuchen."
 
-#: Sources/SpaceStateSettings/main.swift:244
-msgid "No space with this name in the directory."
-msgstr "Im Verzeichnis gibt es keinen Space mit diesem Namen."
+#: Sources/SpaceStateSettings/main.swift:235
+msgid "No space with this name or place in the directory."
+msgstr "Im Verzeichnis gibt es keinen Space mit diesem Namen oder Ort."
 
-#: Sources/SpaceStateSettings/main.swift:248
+#: Sources/SpaceStateSettings/main.swift:242
 msgid "Remove"
 msgstr "Entfernen"
 
-#: Sources/SpaceStateSettings/main.swift:248
+#: Sources/SpaceStateSettings/main.swift:242
 msgid "Add"
 msgstr "Hinzufügen"
 
-#: Sources/SpaceStateSettings/main.swift:317
+#: Sources/SpaceStateSettings/main.swift:323
 msgid "Could not load the Mainframe rooms."
 msgstr "Die Mainframe-Räume konnten nicht geladen werden."
 
-#: Sources/SpaceStateSettings/main.swift:318
+#: Sources/SpaceStateSettings/main.swift:324
 msgid "Loading the rooms…"
 msgstr "Die Räume werden geladen…"
 
-#: Sources/SpaceStateSettings/main.swift:329
+#: Sources/SpaceStateSettings/main.swift:335
 msgid "spacestate-desktop is not on your PATH, so autostart cannot start it."
 msgstr "spacestate-desktop liegt nicht im PATH, der Autostart kann es also nicht starten."
 
-#: Sources/SpaceStateSettings/main.swift:347
+#: Sources/SpaceStateSettings/main.swift:353
 msgid "Saved."
 msgstr "Gespeichert."
 
@@ -130,8 +126,8 @@ msgid "Spaces"
 msgstr "Spaces"
 
 #: Sources/SpaceStateSettings/settings.ui:27
-msgid "Search the directory to add a space"
-msgstr "Im Verzeichnis nach einem Space suchen"
+msgid "Search by name or place"
+msgstr "Nach Name oder Ort suchen"
 
 #: Sources/SpaceStateSettings/settings.ui:48
 msgid "Mainframe Rooms"

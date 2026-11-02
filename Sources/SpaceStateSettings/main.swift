@@ -16,6 +16,7 @@ final class SettingsApp: @unchecked Sendable {
     var search: Widget!
     var spacesList: Widget!
     var roomsList: Widget!
+    var roomsPage: Widget!
     var autostart: Widget!
     var pushServer: Widget!
     var streamServer: Widget!
@@ -76,6 +77,7 @@ final class SettingsApp: @unchecked Sendable {
         search = widget("search")
         spacesList = widget("spaces")
         roomsList = widget("rooms")
+        roomsPage = widget("rooms_page")
         autostart = widget("autostart")
         pushServer = widget("push_server")
         streamServer = widget("stream_server")
@@ -222,44 +224,46 @@ final class SettingsApp: @unchecked Sendable {
             return
         }
         shownSpaces = followed
+        updateRoomsPage()
         let query = text(of: search)
-        if query.trimmingCharacters(in: .whitespaces).isEmpty {
-            for space in followed {
-                gtk_list_box_append(list, spaceRow(space.name ?? space.endpoint.host() ?? space.endpoint.absoluteString,
-                                                   endpoint: space.endpoint, followed: true))
-            }
-            if followed.isEmpty { gtk_list_box_append(list, row(translate("No spaces followed yet. Search above to add one."))) }
-            return
-        }
-        guard let directory else {
+        let rows = SpaceChoice.rows(query, directory: directory ?? [], followed: followed)
+        for item in rows { gtk_list_box_append(list, spaceRow(item.choice, followed: item.followed)) }
+        if directory == nil {
             gtk_list_box_append(list, row(loadingDirectory ? translate("Loading the directory…")
                                                            : translate("Could not load the directory. Search again to retry.")))
-            return
+        } else if rows.isEmpty {
+            gtk_list_box_append(list, row(translate("No space with this name or place in the directory.")))
         }
-        let endpoints = Set(followed.map(\.endpoint))
-        let matches = SpaceChoice.search(query, in: directory)
-        for choice in matches {
-            gtk_list_box_append(list, spaceRow(choice.name, endpoint: choice.endpoint, followed: endpoints.contains(choice.endpoint)))
-        }
-        if matches.isEmpty { gtk_list_box_append(list, row(translate("No space with this name in the directory."))) }
     }
 
-    func spaceRow(_ name: String, endpoint: URL, followed: Bool) -> Widget {
-        let button = gtk_button_new_with_label(followed ? translate("Remove") : translate("Add"))!
+    /// Changes the row itself rather than rebuilding the list, so it stays where it is.
+    func spaceRow(_ choice: SpaceChoice, followed: Bool) -> Widget {
+        var isFollowed = followed
+        let title: () -> String = { isFollowed ? translate("Remove") : translate("Add") }
+        let button = gtk_button_new_with_label(title())!
         on(button, "clicked") { [unowned self] in
             do {
-                if followed {
-                    try self.store.remove(endpoint)
+                if isFollowed {
+                    try self.store.remove(choice.endpoint)
                 } else {
-                    try self.store.add(SavedSpace(endpoint: endpoint, name: name))
+                    try self.store.add(SavedSpace(endpoint: choice.endpoint, name: choice.name))
                 }
+                isFollowed.toggle()
+                gtk_button_set_label(UnsafeMutableRawPointer(button).assumingMemoryBound(to: GtkButton.self), title())
+                self.shownSpaces = try self.store.spaces()
+                self.updateRoomsPage()
                 self.show("")
             } catch {
                 self.show(error)
             }
-            self.renderSpaces()
         }
-        return row(name, control: button)
+        return row(choice.name, subtitle: choice.place, control: button)
+    }
+
+    func updateRoomsPage() {
+        let spaces = (try? store.spaces()) ?? []
+        let rooms = (try? store.settings().rooms) ?? []
+        gtk_widget_set_visible(roomsPage, RoomChoice.areOffered(spaces: spaces, rooms: rooms) ? 1 : 0)
     }
 
     // MARK: Rooms
@@ -294,6 +298,7 @@ final class SettingsApp: @unchecked Sendable {
             return
         }
         shownRooms = followed
+        updateRoomsPage()
         let extra = followed.filter { room in !rooms.contains { $0.room == room } }
         let rows = rooms.map { (title: $0.name, room: $0.room) } + extra.map { (title: $0.room, room: $0) }
         for item in rows {
@@ -306,6 +311,7 @@ final class SettingsApp: @unchecked Sendable {
                 do {
                     try self.store.setRoom(item.room, followed: gtk_check_button_get_active(button) != 0)
                     self.shownRooms = try self.store.settings().rooms
+                    self.updateRoomsPage()
                     self.show("")
                 } catch {
                     self.show(error)
