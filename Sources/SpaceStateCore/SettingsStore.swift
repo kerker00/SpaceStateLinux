@@ -230,10 +230,9 @@ public struct RoomChoice: Sendable, Equatable {
         DesktopSettings.Room(endpoint: Mainframe.spaceAPIEndpoint, room: id)
     }
 
-    /// Rooms are a choice once Mainframe is followed, and stay one while any is
-    /// followed, so they can still be removed.
-    public static func areOffered(spaces: [SavedSpace], rooms: [DesktopSettings.Room]) -> Bool {
-        !rooms.isEmpty || spaces.contains { Mainframe.isMainframe($0.endpoint) }
+    /// Rooms are a choice only while Mainframe is followed.
+    public static func areOffered(spaces: [SavedSpace]) -> Bool {
+        spaces.contains { Mainframe.isMainframe($0.endpoint) }
     }
 
     /// The rooms besides `space`, which is followed as the space itself.

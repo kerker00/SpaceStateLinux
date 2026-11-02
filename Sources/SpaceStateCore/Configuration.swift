@@ -141,12 +141,17 @@ public struct Configuration: Sendable, Equatable {
         }
     }
 
-    /// The stream subscriptions: each saved space, then each room, without duplicates.
+    /// What notifications come for: each saved space, then each chosen room, without duplicates.
+    /// Rooms count only while Mainframe is saved. Their choice stays in `desktop.json`, so it
+    /// is back when Mainframe is chosen again, however it was removed.
     public var subscriptions: [PushSubscription] {
         var seen = Set<PushSubscription>()
-        let all = spaces.map { PushSubscription(endpoint: $0.endpoint) }
-            + settings.rooms.map { PushSubscription(endpoint: $0.endpoint, room: $0.room) }
+        let all = spaces.map { PushSubscription(endpoint: $0.endpoint) } + chosenRooms
         return all.filter { seen.insert($0).inserted }
+    }
+
+    private var chosenRooms: [PushSubscription] {
+        followsMainframe ? settings.rooms.map { PushSubscription(endpoint: $0.endpoint, room: $0.room) } : []
     }
 
     public var pushServer: URL { settings.pushServer ?? DesktopSettings.defaultPushServer }
@@ -155,15 +160,15 @@ public struct Configuration: Sendable, Equatable {
         spaces.contains { Mainframe.isMainframe($0.endpoint) }
     }
 
-    /// What the tray lists: each saved space, with all rooms right after Mainframe, then chosen
-    /// rooms of a space that is not saved. Notifications remain for `subscriptions` only.
+    /// What the tray lists: each saved space, with all rooms right after Mainframe.
+    /// Notifications remain for `subscriptions` only.
     public func displayedTopics(rooms: [RoomChoice]) -> [PushSubscription] {
         var topics: [PushSubscription] = []
         var seen = Set<PushSubscription>()
         func add(_ topic: PushSubscription) {
             if seen.insert(topic).inserted { topics.append(topic) }
         }
-        let chosen = settings.rooms.map { PushSubscription(endpoint: $0.endpoint, room: $0.room) }
+        let chosen = chosenRooms
         for space in spaces {
             add(PushSubscription(endpoint: space.endpoint))
             guard Mainframe.isMainframe(space.endpoint) else { continue }
@@ -172,9 +177,8 @@ public struct Configuration: Sendable, Equatable {
                 add(chosen.first { Mainframe.isMainframe($0.endpoint) && $0.room == room.id }
                     ?? PushSubscription(endpoint: space.endpoint, room: room.id))
             }
-            chosen.filter { Mainframe.isMainframe($0.endpoint) }.forEach(add)
+            chosen.forEach(add)
         }
-        chosen.forEach(add)
         return topics
     }
 

@@ -170,12 +170,9 @@ struct SettingsStoreTests {
         #expect(SpaceChoice.rows("", directory: [], followed: []).isEmpty)
     }
 
-    @Test func roomsAreOfferedWithMainframeOrWhileAnyIsFollowed() {
-        let mainframe = SavedSpace(endpoint: Self.mainframe)
-        let other = SavedSpace(endpoint: Self.other)
-        #expect(!RoomChoice.areOffered(spaces: [other], rooms: []))
-        #expect(RoomChoice.areOffered(spaces: [other, mainframe], rooms: []))
-        #expect(RoomChoice.areOffered(spaces: [other], rooms: [room]))
+    @Test func roomsAreOfferedOnlyWithMainframe() {
+        #expect(!RoomChoice.areOffered(spaces: [SavedSpace(endpoint: Self.other)]))
+        #expect(RoomChoice.areOffered(spaces: [SavedSpace(endpoint: Self.other), SavedSpace(endpoint: Self.mainframe)]))
     }
 
     @Test func roomChoicesLeaveOutTheSpaceItself() {

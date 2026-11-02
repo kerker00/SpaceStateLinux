@@ -32,7 +32,8 @@ The service reloads when they change.
 - `spaces`: the saved spaces of [SpaceStateCLI](https://github.com/kerker00/SpaceStateCLI),
   one endpoint per line with an optional `# name`. Add spaces with `spacestate add <name>`
   or edit the file by hand.
-- `desktop.json` (optional): Mainframe rooms and the server.
+- `desktop.json` (optional): Mainframe rooms and the server. Rooms count only while
+  Mainframe is in `spaces`.
 
   ```json
   {
