@@ -10,13 +10,10 @@ public struct TrayStatus: Sendable, Equatable {
     public struct Line: Sendable, Equatable {
         public var name: String
         public var state: String
-        /// A room listed under its space, which needs only the room's own name in the menu.
-        public var indented: Bool
 
-        public init(name: String, state: String, indented: Bool = false) {
+        public init(name: String, state: String) {
             self.name = name
             self.state = state
-            self.indented = indented
         }
     }
 
@@ -49,8 +46,7 @@ extension StateBoard {
         let unknown = texts.translate("Unknown")
         let known = connected ? topics.map { entries[$0]?.state } : topics.map { _ in nil }
         let lines = zip(topics, known).map { topic, state in
-            TrayStatus.Line(name: entries[topic]?.name ?? name(topic), state: state.map(texts.describe) ?? unknown,
-                            indented: topic.room != nil && topics.contains(PushSubscription(endpoint: topic.endpoint)))
+            TrayStatus.Line(name: entries[topic]?.name ?? name(topic), state: state.map(texts.describe) ?? unknown)
         }
         let open = known.compactMap { $0.flatMap(TrayStatus.isOpen) }
         let icon: TrayStatus.Icon = open.contains(true) ? .open : open.isEmpty ? .unknown : .closed
@@ -88,7 +84,7 @@ public struct TrayMenu: Sendable, Equatable {
     public init(_ status: TrayStatus, settingsAvailable: Bool, texts: AlertTexts = AlertTexts()) {
         // Fixed ids come first, so ids stay unique however many lines there are.
         var lines = status.lines.enumerated().map { index, line in
-            Item(id: Int32(index) + 100, label: Self.escaped(Self.label(of: line)), enabled: false)
+            Item(id: Int32(index) + 100, label: Self.escaped("\(line.name) — \(line.state)"), enabled: false)
         }
         if lines.isEmpty {
             lines = [Item(id: 100, label: texts.translate("No spaces followed"), enabled: false)]
@@ -99,14 +95,6 @@ public struct TrayMenu: Sendable, Equatable {
             Item(id: 4, label: "", enabled: true),
             Item(id: Self.quitId, label: texts.translate("Quit"), enabled: true),
         ]
-    }
-
-    /// Rooms are titled "Mainframe · Radstelle"; under their space the room's name is enough.
-    /// An em space indents, as hosts trim or collapse ordinary leading spaces.
-    static func label(of line: TrayStatus.Line) -> String {
-        guard line.indented else { return "\(line.name) — \(line.state)" }
-        let room = line.name.components(separatedBy: " · ").last ?? line.name
-        return "\u{2003}\(room) — \(line.state)"
     }
 
     /// In a dbusmenu label an underscore marks the access key, and a doubled one is literal.
