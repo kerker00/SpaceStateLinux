@@ -10,6 +10,8 @@
   closed.
 - The settings window lists all spaces before you type, yours first, and also finds them
   by place. The Mainframe rooms appear once Mainframe is chosen.
+- With Mainframe chosen, the tray menu shows all its rooms under it. The rooms tab now
+  chooses only which of them notify.
 - The settings window shows whether the background service runs, and can start it.
 - The settings window follows changes by other programs, such as `spacestate add`.
 - A failed load no longer shows "Loading…" for good.

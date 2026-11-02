@@ -86,7 +86,8 @@ and a click on a notification open it, and so does the launcher with
 
 - **Spaces:** all spaces of the SpacePush directory, yours first. Search by name or place,
   add and remove them.
-- **Mainframe Rooms:** choose rooms to follow, once Mainframe is chosen.
+- **Mainframe Rooms:** once Mainframe is chosen, which rooms notify. The tray menu always
+  shows all of them.
 - **General:** whether the background service runs, with a button to start it, start
   with the session, and the servers under Advanced.
 

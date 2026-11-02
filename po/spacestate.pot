@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 20:35+0100\n"
+"POT-Creation-Date: 2026-11-02 20:41+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,84 +45,84 @@ msgstr ""
 msgid "Test notification from SpacePush. This is not a status change."
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:46
+#: Sources/SpaceStateCore/TrayStatus.swift:49
 msgid "Unknown"
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:54
-#: Sources/SpaceStateCore/TrayStatus.swift:90
+#: Sources/SpaceStateCore/TrayStatus.swift:58
+#: Sources/SpaceStateCore/TrayStatus.swift:94
 msgid "No spaces followed"
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:58
+#: Sources/SpaceStateCore/TrayStatus.swift:62
 msgid "Not connected"
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:94
+#: Sources/SpaceStateCore/TrayStatus.swift:98
 msgid "Settings…"
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:96
+#: Sources/SpaceStateCore/TrayStatus.swift:100
 msgid "Quit"
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:157
+#: Sources/SpaceStateSettings/main.swift:160
 msgid "The background service is running."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:158
+#: Sources/SpaceStateSettings/main.swift:161
 msgid "The background service is not running."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:163
+#: Sources/SpaceStateSettings/main.swift:166
 msgid "Nothing is followed while the background service is not running. Start it under General."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:170
+#: Sources/SpaceStateSettings/main.swift:173
 msgid "spacestate-desktop is not on your PATH, so it cannot be started."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:182
+#: Sources/SpaceStateSettings/main.swift:185
 msgid "%@ cannot be read. Fix or remove it to change these settings."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:184
+#: Sources/SpaceStateSettings/main.swift:187
 msgid "“%@” is not a valid server address."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:232
+#: Sources/SpaceStateSettings/main.swift:235
 msgid "Loading the directory…"
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:233
+#: Sources/SpaceStateSettings/main.swift:236
 msgid "Could not load the directory. Search again to retry."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:235
+#: Sources/SpaceStateSettings/main.swift:238
 msgid "No space with this name or place in the directory."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:242
+#: Sources/SpaceStateSettings/main.swift:257
 msgid "Remove"
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:242
+#: Sources/SpaceStateSettings/main.swift:257
 msgid "Add"
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:323
+#: Sources/SpaceStateSettings/main.swift:338
 msgid "Could not load the Mainframe rooms."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:324
+#: Sources/SpaceStateSettings/main.swift:339
 msgid "Loading the rooms…"
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:335
+#: Sources/SpaceStateSettings/main.swift:350
 msgid "spacestate-desktop is not on your PATH, so autostart cannot start it."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:353
+#: Sources/SpaceStateSettings/main.swift:368
 msgid "Saved."
 msgstr ""
 
@@ -142,34 +142,38 @@ msgstr ""
 msgid "Mainframe Rooms"
 msgstr ""
 
-#: Sources/SpaceStateSettings/settings.ui:67
+#: Sources/SpaceStateSettings/settings.ui:59
+msgid "Get notifications for these rooms. The tray menu always shows all of them."
+msgstr ""
+
+#: Sources/SpaceStateSettings/settings.ui:81
 msgid "General"
 msgstr ""
 
-#: Sources/SpaceStateSettings/settings.ui:87
+#: Sources/SpaceStateSettings/settings.ui:101
 msgid "Start"
 msgstr ""
 
-#: Sources/SpaceStateSettings/settings.ui:98
+#: Sources/SpaceStateSettings/settings.ui:112
 msgid "Start with the session"
 msgstr ""
 
-#: Sources/SpaceStateSettings/settings.ui:113
+#: Sources/SpaceStateSettings/settings.ui:127
 msgid "Advanced"
 msgstr ""
 
-#: Sources/SpaceStateSettings/settings.ui:121
+#: Sources/SpaceStateSettings/settings.ui:135
 msgid "Push server"
 msgstr ""
 
-#: Sources/SpaceStateSettings/settings.ui:134
+#: Sources/SpaceStateSettings/settings.ui:148
 msgid "Stream server"
 msgstr ""
 
-#: Sources/SpaceStateSettings/settings.ui:142
+#: Sources/SpaceStateSettings/settings.ui:156
 msgid "Same as the push server"
 msgstr ""
 
-#: Sources/SpaceStateSettings/settings.ui:148
+#: Sources/SpaceStateSettings/settings.ui:162
 msgid "Apply"
 msgstr ""

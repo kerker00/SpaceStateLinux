@@ -4,6 +4,28 @@ import SpaceStateCore
 import Testing
 
 struct ConfigurationTests {
+    @Test func theTrayListsAllRoomsRightAfterMainframe() {
+        let mainframe = URL(string: "https://status.mainframe.io/api/spaceInfo")!
+        let other = URL(string: "https://example.org/spaceapi.json")!
+        let rooms = [RoomChoice(id: "radstelle", name: "Radstelle"), RoomChoice(id: "lab3d", name: "3D Lab")]
+        let configuration = Configuration(
+            spaces: [SavedSpace(endpoint: other), SavedSpace(endpoint: mainframe)],
+            settings: DesktopSettings(rooms: [.init(endpoint: mainframe, room: "lab3d"), .init(endpoint: mainframe, room: "gone")]))
+        #expect(configuration.followsMainframe)
+        #expect(configuration.displayedTopics(rooms: rooms) == [
+            PushSubscription(endpoint: other), PushSubscription(endpoint: mainframe),
+            PushSubscription(endpoint: mainframe, room: "radstelle"), PushSubscription(endpoint: mainframe, room: "lab3d"),
+            PushSubscription(endpoint: mainframe, room: "gone"),
+        ])
+        // Notifications stay with what was chosen.
+        #expect(configuration.subscriptions.filter { $0.room != nil }.map(\.room) == ["lab3d", "gone"])
+        let withoutMainframe = Configuration(spaces: [SavedSpace(endpoint: other)],
+                                             settings: DesktopSettings(rooms: [.init(endpoint: mainframe, room: "lab3d")]))
+        #expect(!withoutMainframe.followsMainframe)
+        #expect(withoutMainframe.displayedTopics(rooms: rooms)
+            == [PushSubscription(endpoint: other), PushSubscription(endpoint: mainframe, room: "lab3d")])
+    }
+
     @Test func displayNamesPreferTheSavedName() {
         let named = URL(string: "https://status.mainframe.io/api/spaceInfo")!
         let unnamed = URL(string: "https://example.org/spaceapi.json")!
