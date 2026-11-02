@@ -57,6 +57,27 @@ struct DesktopServiceTests {
         #expect(await recorder.alerts.map(\.body) == ["Open"])
     }
 
+    @Test func trayFollowsTheConnectionAndChanges() async {
+        let icons = Mutex<[TrayStatus.Icon]>([])
+        let topic = space
+        let service = DesktopService(
+            subscriptions: [space],
+            events: {
+                AsyncThrowingStream { continuation in
+                    continuation.yield(.connected)
+                    continuation.yield(change(to: "open"))
+                    continuation.yield(.disconnected(reason: "lost", retryIn: .seconds(1)))
+                    continuation.finish()
+                }
+            },
+            read: { _ in [StateReader.Reading(topic: topic, name: "Mainframe", state: "closed")] },
+            show: { _ in },
+            status: { status in icons.withLock { $0.append(status.icon) } },
+            log: { _ in })
+        await service.run()
+        #expect(icons.withLock { $0 } == [.unknown, .closed, .open, .unknown, .unknown])
+    }
+
     @Test func refusedStreamEndsTheRun() async {
         let recorder = Recorder()
         await service([], failing: SpacePushError.httpStatus(404, reason: "unknown_space"), readings: [],
