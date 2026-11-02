@@ -276,9 +276,7 @@ final class SettingsApp: @unchecked Sendable {
     }
 
     func updateRoomsPage() {
-        let spaces = (try? store.spaces()) ?? []
-        let rooms = (try? store.settings().rooms) ?? []
-        gtk_widget_set_visible(roomsPage, RoomChoice.areOffered(spaces: spaces, rooms: rooms) ? 1 : 0)
+        gtk_widget_set_visible(roomsPage, RoomChoice.areOffered(spaces: (try? store.spaces()) ?? []) ? 1 : 0)
     }
 
     // MARK: Rooms

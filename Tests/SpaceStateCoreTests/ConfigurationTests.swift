@@ -19,11 +19,20 @@ struct ConfigurationTests {
         ])
         // Notifications stay with what was chosen.
         #expect(configuration.subscriptions.filter { $0.room != nil }.map(\.room) == ["lab3d", "gone"])
-        let withoutMainframe = Configuration(spaces: [SavedSpace(endpoint: other)],
-                                             settings: DesktopSettings(rooms: [.init(endpoint: mainframe, room: "lab3d")]))
-        #expect(!withoutMainframe.followsMainframe)
-        #expect(withoutMainframe.displayedTopics(rooms: rooms)
-            == [PushSubscription(endpoint: other), PushSubscription(endpoint: mainframe, room: "lab3d")])
+    }
+
+    @Test func roomsCountOnlyWhileMainframeIsSaved() {
+        let mainframe = URL(string: "https://status.mainframe.io/api/spaceInfo")!
+        let other = URL(string: "https://example.org/spaceapi.json")!
+        let settings = DesktopSettings(rooms: [.init(endpoint: mainframe, room: "lab3d")])
+        let rooms = [RoomChoice(id: "lab3d", name: "3D Lab")]
+        let without = Configuration(spaces: [SavedSpace(endpoint: other)], settings: settings)
+        #expect(!without.followsMainframe)
+        #expect(without.subscriptions == [PushSubscription(endpoint: other)])
+        #expect(without.displayedTopics(rooms: rooms) == [PushSubscription(endpoint: other)])
+        // The choice stays in the settings, so it is back with Mainframe.
+        let with = Configuration(spaces: [SavedSpace(endpoint: mainframe)], settings: settings)
+        #expect(with.subscriptions == [PushSubscription(endpoint: mainframe), PushSubscription(endpoint: mainframe, room: "lab3d")])
     }
 
     @Test func displayNamesPreferTheSavedName() {
