@@ -48,7 +48,7 @@ swift build -c release
 cp .build/release/spacestate-desktop ~/.local/bin/
 ```
 
-Until SpaceStateKit 0.4.0 is released, build against a checkout:
+To develop against a SpaceStateKit checkout:
 `SPACESTATEKIT_PATH=../SpaceStateKit swift build`.
 
 Tray hosts find the icons by name, so install them into the icon theme:
@@ -69,4 +69,4 @@ Start it with the session through one of:
 - `exec-once = spacestate-desktop` in `hyprland.conf`, or `exec` in Sway or i3
 
 Messages go to stderr (the journal under systemd). Launching it again does not
-start a second instance.
+start a second instance; it says so and exits.

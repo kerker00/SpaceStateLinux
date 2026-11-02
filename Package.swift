@@ -9,7 +9,7 @@ let package = Package(
     products: [.executable(name: "spacestate-desktop", targets: ["SpaceStateDesktop"])],
     dependencies: [
         localKit.map { .package(path: $0) }
-            ?? .package(url: "https://github.com/kerker00/SpaceStateKit.git", exact: "0.4.0"),
+            ?? .package(url: "https://github.com/kerker00/SpaceStateKit.git", exact: "0.4.1"),
     ],
     targets: [
         // GLib and GIO headers through pkg-config; the service needs no widget toolkit.

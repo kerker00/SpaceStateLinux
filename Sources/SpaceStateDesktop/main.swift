@@ -40,6 +40,16 @@ final class DesktopApp: @unchecked Sendable {
         let activate: @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?) -> Void = { _, _ in }
         connect(app, "startup", context, startup)
         connect(app, "activate", context, activate)
+        // Runs after --help and bad options are handled, which must not register the app.
+        // After g_application_run the app is no longer registered, so this asks before it.
+        let options: @convention(c) (UnsafeMutableRawPointer?, UnsafeMutableRawPointer?, UnsafeMutableRawPointer?) -> Int32 = { _, _, data in
+            let app = DesktopApp.from(data).app
+            if g_application_register(app, nil, nil) != 0, g_application_get_is_remote(app) != 0 {
+                log("Already running; this launch only activated the running instance.")
+            }
+            return -1 // continue
+        }
+        connect(app, "handle-local-options", context, options)
         return g_application_run(app, CommandLine.argc, CommandLine.unsafeArgv)
     }
 
