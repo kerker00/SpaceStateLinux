@@ -21,6 +21,12 @@ public enum Paths {
     public static func desktopSettings(_ environment: [String: String] = ProcessInfo.processInfo.environment) -> URL {
         configDirectory(environment).appending(path: "desktop.json")
     }
+
+    /// The XDG autostart entry that starts the service with the session.
+    public static func autostartEntry(_ environment: [String: String] = ProcessInfo.processInfo.environment) -> URL {
+        configDirectory(environment).deletingLastPathComponent()
+            .appending(path: "autostart/net.grafixmafia.SpaceState.desktop")
+    }
 }
 
 /// A space from the `spaces` file.
@@ -35,7 +41,7 @@ public struct SavedSpace: Sendable, Equatable {
 }
 
 /// Reads SpaceStateCLI's `spaces` file: one endpoint per line and an optional `# name`.
-/// The CLI writes it; the desktop app only reads it, and skips lines it cannot use.
+/// Shared with the CLI: reading skips lines it cannot use, and writing keeps them.
 public enum SavedSpacesFile {
     public static func parse(_ content: String) -> (spaces: [SavedSpace], problems: [String]) {
         var spaces: [SavedSpace] = []
