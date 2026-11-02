@@ -11,9 +11,10 @@ jobs:
     runs-on: ${{ matrix.runner }}
     container: swift:6.2-noble
     steps:
-      - run: apt-get update && apt-get install -y --no-install-recommends pkg-config libglib2.0-dev libgtk-4-dev libgtk-4-bin
+      - run: apt-get update && apt-get install -y --no-install-recommends pkg-config libglib2.0-dev libgtk-4-dev libgtk-4-bin xvfb xauth
       - uses: actions/checkout@v4
       - run: swift --version
-      - run: gtk4-builder-tool validate Sources/SpaceStateSettings/settings.ui
+      # The tool needs a display to initialize GTK.
+      - run: xvfb-run -a gtk4-builder-tool validate Sources/SpaceStateSettings/settings.ui
       - run: swift build -c release --static-swift-stdlib
       - run: swift test
