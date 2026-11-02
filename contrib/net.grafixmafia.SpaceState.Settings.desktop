@@ -2,6 +2,7 @@
 Type=Application
 Name=SpaceState
 Comment=Choose the hackerspaces to follow
+Comment[de]=Hackerspaces zum Folgen auswählen
 Exec=spacestate-settings
 Icon=net.grafixmafia.SpaceState
 Terminal=false
