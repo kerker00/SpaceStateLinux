@@ -5,7 +5,7 @@ import SpaceStateCore
 // spacestate-settings: the window that manages what spacestate-desktop follows. It only writes
 // the configuration files; the service notices the change and reloads. All logic is in Core.
 
-let version = "0.1.0-dev"
+let version = "0.1.0"
 
 /// Lives for the whole process. All fields are used on the GLib main loop only.
 final class SettingsApp: @unchecked Sendable {

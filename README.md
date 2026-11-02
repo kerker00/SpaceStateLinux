@@ -4,7 +4,7 @@ Linux desktop app for [SpaceState](https://github.com/kerker00/SpaceState): desk
 
 It builds on [SpaceStateKit](https://github.com/kerker00/SpaceStateKit) and receives changes from [SpacePush](https://github.com/kerker00/SpacePush) through its change stream. First target is Hyprland; GNOME, KDE Plasma, XFCE and other tiling window managers follow.
 
-Status: in development (phase P4: settings window). See [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
+Status: 0.1.0, source only, tested on Hyprland with the Omarchy shell. Packages and other desktops follow. See [CHANGELOG.md](CHANGELOG.md), [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
 
 ## spacestate-desktop
 
@@ -48,7 +48,7 @@ swift build -c release
 cp .build/release/spacestate-desktop .build/release/spacestate-settings ~/.local/bin/
 ```
 
-Building needs the GLib and GTK 4 development files, as `spacestate-settings` is in the same package.
+Building needs Swift 6.2 and the GLib and GTK 4 development files, as `spacestate-settings` is in the same package.
 
 To develop against a SpaceStateKit checkout:
 `SPACESTATEKIT_PATH=../SpaceStateKit swift build`.
@@ -59,6 +59,8 @@ Tray hosts find the icons by name, so install them into the icon theme:
 mkdir -p ~/.local/share/icons/hicolor/scalable/status
 cp data/icons/hicolor/scalable/status/*.svg ~/.local/share/icons/hicolor/scalable/status/
 ```
+
+On the Omarchy shell, restart the shell or log in again if that directory is new.
 
 The Omarchy shell only sees icon directories that existed when it started. During
 development, `SPACESTATE_ICONDIR=data/icons/hicolor/scalable/status` uses the

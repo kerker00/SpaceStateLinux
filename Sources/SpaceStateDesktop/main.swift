@@ -6,7 +6,7 @@ import SpaceStateCore
 // spacestate-desktop: a background GApplication (GIO only) that shows a notification
 // when a followed space or Mainframe room opens or closes, and their state in a tray icon.
 
-let version = "0.1.0-dev"
+let version = "0.1.0"
 let settingsProgram = "spacestate-settings"
 
 /// Lives for the whole process. All fields are used on the GLib main loop only.
