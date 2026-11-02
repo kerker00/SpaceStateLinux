@@ -4,7 +4,7 @@ Linux desktop app for [SpaceState](https://github.com/kerker00/SpaceState): desk
 
 It builds on [SpaceStateKit](https://github.com/kerker00/SpaceStateKit) and receives changes from [SpacePush](https://github.com/kerker00/SpacePush) through its change stream. First target is Hyprland; GNOME, KDE Plasma, XFCE and other tiling window managers follow.
 
-Status: in development (phase P2: background service with notifications). See [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
+Status: in development (phase P3: tray icon). See [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
 
 ## spacestate-desktop
 
@@ -12,6 +12,11 @@ The background service. It follows the SpacePush change stream for your spaces
 and rooms and shows a notification when one opens or closes. After every
 (re)connection it reads the current states, so a change missed while offline
 is shown once. A newer notification for the same space or room replaces the older.
+
+A tray icon (StatusNotifierItem) shows whether anything you follow is open, and
+its menu lists each space and room with its state. While the stream is not
+connected, states are shown as unknown. Without a tray host the service keeps
+running and shows notifications only; `--no-tray` leaves the icon out on purpose.
 
 It needs GLib/GIO 2.76 or later and a notification daemon (any desktop, or
 mako, swaync, dunst). It does not load GTK.
@@ -45,6 +50,17 @@ cp .build/release/spacestate-desktop ~/.local/bin/
 
 Until SpaceStateKit 0.4.0 is released, build against a checkout:
 `SPACESTATEKIT_PATH=../SpaceStateKit swift build`.
+
+Tray hosts find the icons by name, so install them into the icon theme:
+
+```sh
+mkdir -p ~/.local/share/icons/hicolor/scalable/status
+cp data/icons/hicolor/scalable/status/*.svg ~/.local/share/icons/hicolor/scalable/status/
+```
+
+The Omarchy shell only sees icon directories that existed when it started. During
+development, `SPACESTATE_ICONDIR=data/icons/hicolor/scalable/status` uses the
+repository's icons without installing them.
 
 Start it with the session through one of:
 - XDG autostart (GNOME, KDE Plasma, XFCE, Hyprland with uwsm):

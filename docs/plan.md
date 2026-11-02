@@ -40,6 +40,12 @@ Consequences:
   usable: notifications keep working, and the settings window opens from the
   app launcher. Waybar users can also use the existing
   `spacestate watch --waybar --push` module instead of the tray.
+- **Icons** are monochrome `-symbolic` SVGs, installed into the hicolor theme,
+  so hosts find them by name and tint them like other panel icons. The Omarchy
+  shell (quickshell) loads an icon outside a theme from
+  `<IconThemePath>/<IconName>` without a file extension, and Qt only sees icon
+  directories that existed when the shell started. So development builds publish
+  extensionless links, and packages must install into hicolor.
 - **Autostart** is written as an XDG autostart entry, which most desktops honour,
   or requested from the Background portal under Flatpak. A systemd user unit is
   documented for tiling setups.
@@ -174,7 +180,7 @@ no Swift installation.
 | P0 | Repo, plan, diagram (this branch) | plan reviewed |
 | P1 | Spike on Hyprland: Swift GTK 4 window, `GNotification`, SNI icon in Waybar; decide D2 | small prototype works, decision recorded |
 | P2 | Core and notifier: config, ChangeFeed, resync, notifications | notifications on Hyprland from a local and the production SpacePush. **Status:** works on Hyprland against a local SpacePush; production waits for the stream on Uberspace (O1–O3) and Kit 0.4.0 |
-| P3 | Tray: SNI and dbusmenu | icon and menu in Waybar, KDE, XFCE |
+| P3 | Tray: SNI and dbusmenu | icon and menu in Waybar, KDE, XFCE. **Status:** icon visible in the Omarchy shell's bar, item and menu checked over D-Bus; Waybar, KDE and XFCE not yet checked |
 | P4 | Settings window as `spacestate-settings`: directory search, rooms, autostart; service reloads on change | spaces managed without editing files |
 | P5 | Packaging: AUR, then Flatpak | install on a fresh Arch and a fresh Fedora VM |
 | P6 | Desktop matrix: GNOME, Sway/niri, i3, Cinnamon/MATE; fixes and docs | smoke checklist passes, gaps documented |
