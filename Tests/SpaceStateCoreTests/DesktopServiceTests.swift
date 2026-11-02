@@ -78,6 +78,39 @@ struct DesktopServiceTests {
         #expect(icons.withLock { $0 } == [.unknown, .closed, .open, .unknown, .unknown])
     }
 
+    @Test func anUnavailableStreamFallsBackToReading() async {
+        let recorder = Recorder()
+        let icons = Mutex<[TrayStatus.Icon]>([])
+        let reads = Mutex(0)
+        let states = Mutex(["closed", "open"])
+        let topic = space
+        let service = DesktopService(
+            subscriptions: [space],
+            events: {
+                AsyncThrowingStream { continuation in
+                    continuation.yield(.disconnected(reason: "503", retryIn: .seconds(1)))
+                    continuation.yield(.disconnected(reason: "503", retryIn: .seconds(30)))
+                    continuation.yield(.disconnected(reason: "503", retryIn: .seconds(60)))
+                    continuation.yield(.disconnected(reason: "503", retryIn: .seconds(120)))
+                    continuation.finish()
+                }
+            },
+            read: { _ in
+                reads.withLock { $0 += 1 }
+                let state = states.withLock { $0.isEmpty ? nil : $0.removeFirst() }
+                return state.map { [StateReader.Reading(topic: topic, name: "Mainframe", state: $0)] } ?? []
+            },
+            show: { await recorder.add($0) },
+            status: { status in icons.withLock { $0.append(status.icon) } },
+            log: { _ in })
+        await service.run()
+        // A short wait does not read. A change seen by reading is notified. When reading
+        // fails too, the state is unknown again.
+        #expect(reads.withLock { $0 } == 3)
+        #expect(await recorder.alerts.map(\.body) == ["Open"])
+        #expect(icons.withLock { $0 } == [.unknown, .unknown, .closed, .open, .unknown, .unknown])
+    }
+
     @Test func refusedStreamEndsTheRun() async {
         let recorder = Recorder()
         await service([], failing: SpacePushError.httpStatus(404, reason: "unknown_space"), readings: [],

@@ -30,7 +30,8 @@ public enum StateReader {
                             guard let state = state(of: space.status) else { return [] }
                             return [Reading(topic: topic, name: space.name, state: state)]
                         } catch {
-                            log("Could not read \(topic.endpoint.absoluteString): \(error)")
+                            // A reload cancels a read under way; that is not a problem to report.
+                            if !Task.isCancelled { log("Could not read \(topic.endpoint.absoluteString): \(error)") }
                             return []
                         }
                     }
@@ -41,7 +42,7 @@ public enum StateReader {
                         do {
                             return readings(rooms, from: try await service.mainframeRooms())
                         } catch {
-                            log("Could not read the Mainframe rooms: \(error)")
+                            if !Task.isCancelled { log("Could not read the Mainframe rooms: \(error)") }
                             return []
                         }
                     }
