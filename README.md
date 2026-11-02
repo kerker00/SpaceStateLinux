@@ -4,4 +4,53 @@ Linux desktop app for [SpaceState](https://github.com/kerker00/SpaceState): desk
 
 It builds on [SpaceStateKit](https://github.com/kerker00/SpaceStateKit) and receives changes from [SpacePush](https://github.com/kerker00/SpacePush) through its change stream. First target is Hyprland; GNOME, KDE Plasma, XFCE and other tiling window managers follow.
 
-Status: planning. See [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
+Status: in development (phase P2: background service with notifications). See [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
+
+## spacestate-desktop
+
+The background service. It follows the SpacePush change stream for your spaces
+and rooms and shows a notification when one opens or closes. After every
+(re)connection it reads the current states, so a change missed while offline
+is shown once. A newer notification for the same space or room replaces the older.
+
+It needs GLib/GIO 2.76 or later and a notification daemon (any desktop, or
+mako, swaync, dunst). It does not load GTK.
+
+### Configuration
+
+Both files live in `$XDG_CONFIG_HOME/spacestate/` (default `~/.config/spacestate/`).
+The service reloads when they change.
+
+- `spaces`: the saved spaces of [SpaceStateCLI](https://github.com/kerker00/SpaceStateCLI),
+  one endpoint per line with an optional `# name`. Add spaces with `spacestate add <name>`
+  or edit the file by hand.
+- `desktop.json` (optional): Mainframe rooms and the server.
+
+  ```json
+  {
+    "rooms": [{"endpoint": "https://status.mainframe.io/api/spaceInfo", "room": "radstelle"}],
+    "pushServer": "https://push.grafixmafia.net",
+    "streamServer": null
+  }
+  ```
+
+  `streamServer` is only needed when `/v1/stream` is served elsewhere than `pushServer`.
+
+### Build and run
+
+```sh
+swift build -c release
+cp .build/release/spacestate-desktop ~/.local/bin/
+```
+
+Until SpaceStateKit 0.4.0 is released, build against a checkout:
+`SPACESTATEKIT_PATH=../SpaceStateKit swift build`.
+
+Start it with the session through one of:
+- XDG autostart (GNOME, KDE Plasma, XFCE, Hyprland with uwsm):
+  `cp contrib/net.grafixmafia.SpaceState.desktop ~/.config/autostart/`
+- a systemd user unit: see `contrib/spacestate-desktop.service`
+- `exec-once = spacestate-desktop` in `hyprland.conf`, or `exec` in Sway or i3
+
+Messages go to stderr (the journal under systemd). Launching it again does not
+start a second instance.
