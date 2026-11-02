@@ -205,9 +205,14 @@ public struct SpaceChoice: Sendable, Equatable {
     /// The spaces SpacePush can follow: only those in its directory.
     public static func load(pushServer: URL, userAgent: String) async throws -> [SpaceChoice] {
         let client = SpacePushClient(baseURL: pushServer, headers: ["User-Agent": userAgent])
-        return try await client.directory().map {
+        return sorted(try await client.directory().map {
             SpaceChoice(name: $0.info.name, endpoint: $0.endpoint, place: $0.info.location?.address)
-        }
+        })
+    }
+
+    /// By name as people read it: "Nerd2Nerd" before "NYCResistor", "Évry" among the E.
+    public static func sorted(_ choices: [SpaceChoice]) -> [SpaceChoice] {
+        choices.sorted { $0.name.compare($1.name, options: [.caseInsensitive, .diacriticInsensitive, .numeric]) == .orderedAscending }
     }
 }
 

@@ -28,7 +28,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkScrolledWindow">
+                      <object class="GtkScrolledWindow" id="spaces_scroller">
                         <property name="vexpand">true</property>
                         <property name="hscrollbar-policy">never</property>
                         <property name="has-frame">true</property>

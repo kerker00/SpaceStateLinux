@@ -15,6 +15,7 @@ final class SettingsApp: @unchecked Sendable {
     var window: Widget?
     var search: Widget!
     var spacesList: Widget!
+    var spacesScroller: Widget!
     var roomsList: Widget!
     var roomsPage: Widget!
     var autostart: Widget!
@@ -76,6 +77,7 @@ final class SettingsApp: @unchecked Sendable {
         self.window = window
         search = widget("search")
         spacesList = widget("spaces")
+        spacesScroller = widget("spaces_scroller")
         roomsList = widget("rooms")
         roomsPage = widget("rooms_page")
         autostart = widget("autostart")
@@ -101,6 +103,7 @@ final class SettingsApp: @unchecked Sendable {
         loadRooms()
         watchFiles()
         watchService()
+        gtk_widget_grab_focus(search)
     }
 
     /// Lists follow other programs, such as `spacestate add`, a moment after they write.
@@ -234,6 +237,18 @@ final class SettingsApp: @unchecked Sendable {
         } else if rows.isEmpty {
             gtk_list_box_append(list, row(translate("No space with this name or place in the directory.")))
         }
+        scrollSpacesToTop()
+    }
+
+    /// A rebuilt list starts at the top, where the followed spaces are. It happens once the
+    /// new rows are laid out, as GTK otherwise keeps a position from the old ones.
+    func scrollSpacesToTop() {
+        let top: @convention(c) (UnsafeMutableRawPointer?) -> gboolean = { data in
+            let app = SettingsApp.from(data)
+            gtk_adjustment_set_value(gtk_scrolled_window_get_vadjustment(OpaquePointer(app.spacesScroller)), 0)
+            return 0 // G_SOURCE_REMOVE
+        }
+        g_idle_add(top, Unmanaged.passUnretained(self).toOpaque())
     }
 
     /// Changes the row itself rather than rebuilding the list, so it stays where it is.

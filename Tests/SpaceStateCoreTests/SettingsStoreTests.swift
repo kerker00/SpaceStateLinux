@@ -148,6 +148,12 @@ struct SettingsStoreTests {
         #expect(SpaceChoice.search("nowhere", in: choices).isEmpty)
     }
 
+    @Test func namesSortAsPeopleReadThem() {
+        let names = ["NYCResistor", "Évry", "Nerd2Nerd", "c-base", "Zeta", "Nerd10", "Eins"]
+        #expect(SpaceChoice.sorted(names.map { choice($0) }).map(\.name)
+            == ["c-base", "Eins", "Évry", "Nerd2Nerd", "Nerd10", "NYCResistor", "Zeta"])
+    }
+
     @Test func anEmptySearchListsEverythingInOrder() {
         let choices = [choice("B"), choice("A")]
         #expect(SpaceChoice.search("  ", in: choices) == choices)
