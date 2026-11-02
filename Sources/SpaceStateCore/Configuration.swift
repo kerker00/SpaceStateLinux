@@ -143,4 +143,11 @@ public struct Configuration: Sendable, Equatable {
     }
 
     public var pushServer: URL { settings.pushServer ?? DesktopSettings.defaultPushServer }
+
+    /// A name for a topic whose state has not been read yet.
+    @Sendable public func displayName(for topic: PushSubscription) -> String {
+        let space = spaces.first { $0.endpoint == topic.endpoint }?.name
+            ?? topic.endpoint.host() ?? topic.endpoint.absoluteString
+        return topic.room.map { "\(space) · \($0)" } ?? space
+    }
 }

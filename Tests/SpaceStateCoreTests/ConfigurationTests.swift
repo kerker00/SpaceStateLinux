@@ -4,6 +4,15 @@ import SpaceStateCore
 import Testing
 
 struct ConfigurationTests {
+    @Test func displayNamesPreferTheSavedName() {
+        let named = URL(string: "https://status.mainframe.io/api/spaceInfo")!
+        let unnamed = URL(string: "https://example.org/spaceapi.json")!
+        let configuration = Configuration(spaces: [SavedSpace(endpoint: named, name: "Mainframe")])
+        #expect(configuration.displayName(for: PushSubscription(endpoint: named)) == "Mainframe")
+        #expect(configuration.displayName(for: PushSubscription(endpoint: named, room: "lab3d")) == "Mainframe · lab3d")
+        #expect(configuration.displayName(for: PushSubscription(endpoint: unnamed)) == "example.org")
+    }
+
     let mainframe = URL(string: "https://status.mainframe.io/api/spaceInfo")!
 
     @Test func parsesTheCLIFormat() {

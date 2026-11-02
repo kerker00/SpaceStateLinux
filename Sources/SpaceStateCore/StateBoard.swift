@@ -24,7 +24,7 @@ public typealias Translate = @Sendable (String) -> String
 
 /// Notification texts, with the same meanings as the SpaceState apps' `PUSH_STATE_*` texts.
 public struct AlertTexts: Sendable {
-    let translate: Translate
+    public let translate: Translate
 
     public init(translate: @escaping Translate = { $0 }) {
         self.translate = translate
