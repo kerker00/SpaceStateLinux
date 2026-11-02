@@ -14,7 +14,10 @@
   by place. The Mainframe rooms appear once Mainframe is chosen.
 - With Mainframe chosen, the tray menu shows all its rooms under it. The rooms tab now
   chooses only which of them notify. Rooms count only while Mainframe is chosen, and their
-  choice is back when it is chosen again.
+  choice is back when it is chosen again. Rooms not chosen make way when SpacePush's limit
+  of 50 topics would be reached.
+- With more chosen spaces and rooms than that limit, the settings window says that
+  notifications come late, as the service reads the states instead.
 - The settings window shows whether the background service runs, and can start it.
 - The settings window follows changes by other programs, such as `spacestate add`.
 - A failed load no longer shows "Loading…" for good.

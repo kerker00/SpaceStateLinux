@@ -130,9 +130,10 @@ public struct DesktopService: Sendable {
             }
         } catch is CancellationError {
         } catch SpacePushError.httpStatus(let status, let reason) {
-            // One saved space outside the directory refuses the whole stream. The read API
-            // also reaches such a space directly, so all of them keep working with a delay.
-            log("Change stream refused (\(status) \(reason ?? "")): SpacePush follows only spaces in its directory. "
+            // One saved space outside the directory, or too many topics, refuses the whole
+            // stream. The read API reaches them too, so all keep working with a delay.
+            log("Change stream refused (\(status) \(reason ?? "")): SpacePush follows only spaces in its directory, "
+                + "and at most \(Configuration.streamTopicLimit) topics; this list has \(followed.count). "
                 + "Reading the states every \(Self.refusedReadingInterval.components.seconds / 60) minutes instead.")
             while !Task.isCancelled {
                 await publish(connected: await resync())
