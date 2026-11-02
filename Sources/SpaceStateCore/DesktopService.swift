@@ -15,11 +15,13 @@ public struct DesktopService: Sendable {
     let log: @Sendable (String) -> Void
     let name: @Sendable (PushSubscription) -> String
     let status: @Sendable (TrayStatus) async -> Void
+    let sleep: @Sendable (Duration) async throws -> Void
 
     public init(subscriptions: [PushSubscription], events: @escaping Events, read: @escaping StateReader.Read,
                 texts: AlertTexts = AlertTexts(), show: @escaping @Sendable (Alert) async -> Void,
                 status: @escaping @Sendable (TrayStatus) async -> Void = { _ in },
                 name: @escaping @Sendable (PushSubscription) -> String = { $0.endpoint.host() ?? $0.endpoint.absoluteString },
+                sleep: @escaping @Sendable (Duration) async throws -> Void = { try await Task.sleep(for: $0) },
                 log: @escaping @Sendable (String) -> Void) {
         self.subscriptions = subscriptions
         self.events = events
@@ -28,6 +30,7 @@ public struct DesktopService: Sendable {
         self.show = show
         self.status = status
         self.name = name
+        self.sleep = sleep
         self.log = log
     }
 
@@ -49,8 +52,10 @@ public struct DesktopService: Sendable {
     /// which spaces the reads out as far as the attempts (up to five minutes). A stream that
     /// ends normally waits for the server's shorter retry hint and causes no read.
     public static let readingDelay: Duration = .seconds(30)
+    /// How often the states are read when the server refuses the stream for good.
+    public static let refusedReadingInterval: Duration = .seconds(300)
 
-    /// Runs until cancelled, or until the server refuses the subscriptions.
+    /// Runs until cancelled.
     public func run() async {
         var board = StateBoard(texts: texts)
         func publish(connected: Bool) async {
@@ -91,7 +96,15 @@ public struct DesktopService: Sendable {
             }
         } catch is CancellationError {
         } catch SpacePushError.httpStatus(let status, let reason) {
-            log("Change stream refused (\(status) \(reason ?? "")): SpacePush follows only spaces in its directory.")
+            // One saved space outside the directory refuses the whole stream. The read API
+            // also reaches such a space directly, so all of them keep working with a delay.
+            log("Change stream refused (\(status) \(reason ?? "")): SpacePush follows only spaces in its directory. "
+                + "Reading the states every \(Self.refusedReadingInterval.components.seconds / 60) minutes instead.")
+            while !Task.isCancelled {
+                await publish(connected: await resync())
+                do { try await sleep(Self.refusedReadingInterval) } catch { return }
+            }
+            return
         } catch {
             log("Change stream unavailable: \(error)")
         }

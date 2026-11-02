@@ -111,11 +111,30 @@ struct DesktopServiceTests {
         #expect(icons.withLock { $0 } == [.unknown, .unknown, .closed, .open, .unknown, .unknown])
     }
 
-    @Test func refusedStreamEndsTheRun() async {
+    @Test func aRefusedStreamKeepsNotifyingByReading() async {
         let recorder = Recorder()
-        await service([], failing: SpacePushError.httpStatus(404, reason: "unknown_space"), readings: [],
-                      recorder: recorder).run()
-        #expect(await recorder.alerts.isEmpty)
+        let icons = Mutex<[TrayStatus.Icon]>([])
+        let waits = Mutex<[Duration]>([])
+        let states = Mutex(["closed", "open"])
+        let topic = space
+        let service = DesktopService(
+            subscriptions: [space],
+            events: { AsyncThrowingStream { $0.finish(throwing: SpacePushError.httpStatus(404, reason: "unknown_space")) } },
+            read: { _ in
+                let state = states.withLock { $0.isEmpty ? nil : $0.removeFirst() }
+                return state.map { [StateReader.Reading(topic: topic, name: "Mainframe", state: $0)] } ?? []
+            },
+            show: { await recorder.add($0) },
+            status: { status in icons.withLock { $0.append(status.icon) } },
+            sleep: { duration in
+                let count = waits.withLock { $0.append(duration); return $0.count }
+                if count == 3 { throw CancellationError() }
+            },
+            log: { _ in })
+        await service.run()
+        #expect(await recorder.alerts.map(\.body) == ["Open"])
+        #expect(icons.withLock { $0 } == [.unknown, .closed, .open, .unknown])
+        #expect(waits.withLock { $0 } == Array(repeating: DesktopService.refusedReadingInterval, count: 3))
     }
 
     @Test func nothingToFollow() async {
