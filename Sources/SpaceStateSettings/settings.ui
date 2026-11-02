@@ -24,11 +24,11 @@
                     <property name="margin-bottom">12</property>
                     <child>
                       <object class="GtkSearchEntry" id="search">
-                        <property name="placeholder-text" translatable="yes">Search the directory to add a space</property>
+                        <property name="placeholder-text" translatable="yes">Search by name or place</property>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkScrolledWindow">
+                      <object class="GtkScrolledWindow" id="spaces_scroller">
                         <property name="vexpand">true</property>
                         <property name="hscrollbar-policy">never</property>
                         <property name="has-frame">true</property>
@@ -47,17 +47,31 @@
               <object class="GtkNotebookPage">
                 <property name="tab-label" translatable="yes">Mainframe Rooms</property>
                 <property name="child">
-                  <object class="GtkScrolledWindow">
-                    <property name="hscrollbar-policy">never</property>
-                    <property name="child">
-                      <object class="GtkListBox" id="rooms">
-                        <property name="selection-mode">none</property>
-                        <property name="margin-start">12</property>
-                        <property name="margin-end">12</property>
-                        <property name="margin-top">12</property>
-                        <property name="margin-bottom">12</property>
+                  <object class="GtkBox" id="rooms_page">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">6</property>
+                    <property name="margin-start">12</property>
+                    <property name="margin-end">12</property>
+                    <property name="margin-top">12</property>
+                    <property name="margin-bottom">12</property>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Get notifications for these rooms. The tray menu always shows all of them.</property>
+                        <property name="xalign">0</property>
+                        <property name="wrap">true</property>
                       </object>
-                    </property>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow">
+                        <property name="vexpand">true</property>
+                        <property name="hscrollbar-policy">never</property>
+                        <property name="child">
+                          <object class="GtkListBox" id="rooms">
+                            <property name="selection-mode">none</property>
+                          </object>
+                        </property>
+                      </object>
+                    </child>
                   </object>
                 </property>
               </object>

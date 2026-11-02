@@ -84,8 +84,10 @@ The settings window, a separate program that needs GTK 4.12 or later. The tray m
 and a click on a notification open it, and so does the launcher with
 `contrib/net.grafixmafia.SpaceState.Settings.desktop` in `~/.local/share/applications/`.
 
-- **Spaces:** search the SpacePush directory, add and remove spaces.
-- **Mainframe Rooms:** choose rooms to follow.
+- **Spaces:** all spaces of the SpacePush directory, yours first. Search by name or place,
+  add and remove them.
+- **Mainframe Rooms:** once Mainframe is chosen, which rooms notify. The tray menu always
+  shows all of them.
 - **General:** whether the background service runs, with a button to start it, start
   with the session, and the servers under Advanced.
 

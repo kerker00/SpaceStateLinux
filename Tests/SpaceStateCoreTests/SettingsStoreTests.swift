@@ -134,14 +134,48 @@ struct SettingsStoreTests {
 
     // MARK: Choices
 
-    @Test func searchPrefersNamesStartingWithTheQuery() {
-        let choices = ["Chaos Mainframe", "Mainframe", "Köln", "Other"].map {
-            SpaceChoice(name: $0, endpoint: URL(string: "https://example.org/\($0.count)")!)
-        }
+    func choice(_ name: String, place: String? = nil) -> SpaceChoice {
+        SpaceChoice(name: name, endpoint: URL(string: "https://example.org/\(name.count)-\(name.hashValue)")!, place: place)
+    }
+
+    @Test func searchRanksNamesBeforePlaces() {
+        let choices = [choice("Chaos Mainframe"), choice("In Oldenburg", place: "Berlin"), choice("Mainframe", place: "Bahnhofsplatz 10, Oldenburg"),
+                       choice("Köln"), choice("Other", place: "Via Rustici 4, L'Aquila, Italy")]
         #expect(SpaceChoice.search("main", in: choices).map(\.name) == ["Mainframe", "Chaos Mainframe"])
         #expect(SpaceChoice.search(" KOLN ", in: choices).map(\.name) == ["Köln"])
-        #expect(SpaceChoice.search("  ", in: choices).isEmpty)
-        #expect(SpaceChoice.search("o", in: choices, limit: 1).count == 1)
+        #expect(SpaceChoice.search("oldenburg", in: choices).map(\.name) == ["In Oldenburg", "Mainframe"])
+        #expect(SpaceChoice.search("italy", in: choices).map(\.name) == ["Other"])
+        #expect(SpaceChoice.search("nowhere", in: choices).isEmpty)
+    }
+
+    @Test func namesSortAsPeopleReadThem() {
+        let names = ["NYCResistor", "Évry", "Nerd2Nerd", "c-base", "Zeta", "Nerd10", "Eins"]
+        #expect(SpaceChoice.sorted(names.map { choice($0) }).map(\.name)
+            == ["c-base", "Eins", "Évry", "Nerd2Nerd", "Nerd10", "NYCResistor", "Zeta"])
+    }
+
+    @Test func anEmptySearchListsEverythingInOrder() {
+        let choices = [choice("B"), choice("A")]
+        #expect(SpaceChoice.search("  ", in: choices) == choices)
+    }
+
+    @Test func rowsPutFollowedSpacesFirst() {
+        let a = choice("A"), b = choice("B"), c = choice("C", place: "Oldenburg")
+        let unknown = URL(string: "https://unknown.example.org/api")!
+        let followed = [SavedSpace(endpoint: c.endpoint, name: "Saved name"), SavedSpace(endpoint: unknown, name: "From the CLI")]
+        let rows = SpaceChoice.rows("", directory: [a, b, c], followed: followed)
+        #expect(rows.map(\.choice.name) == ["C", "From the CLI", "A", "B"])
+        #expect(rows.map(\.followed) == [true, true, false, false])
+        #expect(SpaceChoice.rows("oldenburg", directory: [a, b, c], followed: followed).map(\.choice.name) == ["C"])
+        #expect(SpaceChoice.rows("", directory: [], followed: []).isEmpty)
+    }
+
+    @Test func roomsAreOfferedWithMainframeOrWhileAnyIsFollowed() {
+        let mainframe = SavedSpace(endpoint: Self.mainframe)
+        let other = SavedSpace(endpoint: Self.other)
+        #expect(!RoomChoice.areOffered(spaces: [other], rooms: []))
+        #expect(RoomChoice.areOffered(spaces: [other, mainframe], rooms: []))
+        #expect(RoomChoice.areOffered(spaces: [other], rooms: [room]))
     }
 
     @Test func roomChoicesLeaveOutTheSpaceItself() {

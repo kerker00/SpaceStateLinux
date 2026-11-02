@@ -67,20 +67,33 @@ func text(of editable: Widget) -> String {
     String(cString: gtk_editable_get_text(OpaquePointer(editable)))
 }
 
-/// A list row: a label that takes the free space, and optionally a control at its end.
-func row(_ title: String, control: Widget? = nil) -> Widget {
+/// A list row: a title, optionally a dimmed line below it, and optionally a control at its end.
+func row(_ title: String, subtitle: String? = nil, control: Widget? = nil) -> Widget {
+    func label(_ text: String) -> Widget {
+        let label = gtk_label_new(text)!
+        gtk_label_set_xalign(OpaquePointer(label), 0)
+        gtk_label_set_ellipsize(OpaquePointer(label), PANGO_ELLIPSIZE_END)
+        return label
+    }
+    func asBox(_ widget: Widget) -> UnsafeMutablePointer<GtkBox> {
+        UnsafeMutableRawPointer(widget).assumingMemoryBound(to: GtkBox.self)
+    }
     let box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 12)!
     gtk_widget_set_margin_start(box, 12)
     gtk_widget_set_margin_end(box, 6)
     gtk_widget_set_margin_top(box, 6)
     gtk_widget_set_margin_bottom(box, 6)
-    let label = gtk_label_new(title)!
-    gtk_widget_set_hexpand(label, 1)
-    gtk_label_set_xalign(OpaquePointer(label), 0)
-    gtk_label_set_ellipsize(OpaquePointer(label), PANGO_ELLIPSIZE_END)
-    gtk_box_append(UnsafeMutableRawPointer(box).assumingMemoryBound(to: GtkBox.self), label)
-    if let control {
-        gtk_box_append(UnsafeMutableRawPointer(box).assumingMemoryBound(to: GtkBox.self), control)
+    let texts = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2)!
+    gtk_widget_set_hexpand(texts, 1)
+    gtk_widget_set_valign(texts, GTK_ALIGN_CENTER)
+    gtk_box_append(asBox(texts), label(title))
+    if let subtitle, !subtitle.isEmpty {
+        let line = label(subtitle)
+        gtk_widget_add_css_class(line, "dim-label")
+        gtk_widget_set_tooltip_text(line, subtitle)
+        gtk_box_append(asBox(texts), line)
     }
+    gtk_box_append(asBox(box), texts)
+    if let control { gtk_box_append(asBox(box), control) }
     return box
 }

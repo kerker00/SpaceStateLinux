@@ -154,27 +154,65 @@ public struct SettingsStore: Sendable {
 public struct SpaceChoice: Sendable, Equatable {
     public var name: String
     public var endpoint: URL
+    /// Where it is, as far as the space says, such as a postal address.
+    public var place: String?
 
-    public init(name: String, endpoint: URL) {
+    public init(name: String, endpoint: URL, place: String? = nil) {
         self.name = name
         self.endpoint = endpoint
+        self.place = place
     }
 
-    /// Names containing the query, those starting with it first.
-    public static func search(_ query: String, in choices: [SpaceChoice], limit: Int = 50) -> [SpaceChoice] {
+    /// With an empty query all of them, as given. Otherwise those whose name or place contains
+    /// it: names starting with it first, then other names, then places.
+    public static func search(_ query: String, in choices: [SpaceChoice]) -> [SpaceChoice] {
         let query = query.trimmingCharacters(in: .whitespaces)
-        guard !query.isEmpty else { return [] }
+        guard !query.isEmpty else { return choices }
         let options: String.CompareOptions = [.caseInsensitive, .diacriticInsensitive]
-        let matches = choices.filter { $0.name.range(of: query, options: options) != nil }
-        let first = matches.filter { $0.name.range(of: query, options: options.union(.anchored)) != nil }
-        let others = matches.filter { $0.name.range(of: query, options: options.union(.anchored)) == nil }
-        return Array((first + others).prefix(limit))
+        func rank(_ choice: SpaceChoice) -> Int? {
+            if choice.name.range(of: query, options: options.union(.anchored)) != nil { return 0 }
+            if choice.name.range(of: query, options: options) != nil { return 1 }
+            if choice.place?.range(of: query, options: options) != nil { return 2 }
+            return nil
+        }
+        return choices.compactMap { choice in rank(choice).map { (choice, $0) } }
+            .enumerated().sorted { ($0.element.1, $0.offset) < ($1.element.1, $1.offset) }.map(\.element.0)
+    }
+
+    /// One row of the window's list.
+    public struct Row: Sendable, Equatable {
+        public var choice: SpaceChoice
+        public var followed: Bool
+
+        public init(choice: SpaceChoice, followed: Bool) {
+            self.choice = choice
+            self.followed = followed
+        }
+    }
+
+    /// What the list shows: followed spaces first, including those the directory does not know.
+    public static func rows(_ query: String, directory: [SpaceChoice], followed: [SavedSpace]) -> [Row] {
+        let known = Dictionary(directory.map { ($0.endpoint, $0) }, uniquingKeysWith: { first, _ in first })
+        let endpoints = Set(followed.map(\.endpoint))
+        let mine = followed.map { space in
+            known[space.endpoint] ?? SpaceChoice(name: space.name ?? space.endpoint.host() ?? space.endpoint.absoluteString,
+                                                 endpoint: space.endpoint)
+        }
+        return search(query, in: mine).map { Row(choice: $0, followed: true) }
+            + search(query, in: directory.filter { !endpoints.contains($0.endpoint) }).map { Row(choice: $0, followed: false) }
     }
 
     /// The spaces SpacePush can follow: only those in its directory.
     public static func load(pushServer: URL, userAgent: String) async throws -> [SpaceChoice] {
         let client = SpacePushClient(baseURL: pushServer, headers: ["User-Agent": userAgent])
-        return try await client.directory().map { SpaceChoice(name: $0.info.name, endpoint: $0.endpoint) }
+        return sorted(try await client.directory().map {
+            SpaceChoice(name: $0.info.name, endpoint: $0.endpoint, place: $0.info.location?.address)
+        })
+    }
+
+    /// By name as people read it: "Nerd2Nerd" before "NYCResistor", "Évry" among the E.
+    public static func sorted(_ choices: [SpaceChoice]) -> [SpaceChoice] {
+        choices.sorted { $0.name.compare($1.name, options: [.caseInsensitive, .diacriticInsensitive, .numeric]) == .orderedAscending }
     }
 }
 
@@ -190,6 +228,12 @@ public struct RoomChoice: Sendable, Equatable {
 
     public var room: DesktopSettings.Room {
         DesktopSettings.Room(endpoint: Mainframe.spaceAPIEndpoint, room: id)
+    }
+
+    /// Rooms are a choice once Mainframe is followed, and stay one while any is
+    /// followed, so they can still be removed.
+    public static func areOffered(spaces: [SavedSpace], rooms: [DesktopSettings.Room]) -> Bool {
+        !rooms.isEmpty || spaces.contains { Mainframe.isMainframe($0.endpoint) }
     }
 
     /// The rooms besides `space`, which is followed as the space itself.

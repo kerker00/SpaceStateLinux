@@ -1,4 +1,5 @@
 import Foundation
+import MainframeStatus
 import SpaceAPI
 import SpacePushClient
 
@@ -149,6 +150,33 @@ public struct Configuration: Sendable, Equatable {
     }
 
     public var pushServer: URL { settings.pushServer ?? DesktopSettings.defaultPushServer }
+
+    public var followsMainframe: Bool {
+        spaces.contains { Mainframe.isMainframe($0.endpoint) }
+    }
+
+    /// What the tray lists: each saved space, with all rooms right after Mainframe, then chosen
+    /// rooms of a space that is not saved. Notifications remain for `subscriptions` only.
+    public func displayedTopics(rooms: [RoomChoice]) -> [PushSubscription] {
+        var topics: [PushSubscription] = []
+        var seen = Set<PushSubscription>()
+        func add(_ topic: PushSubscription) {
+            if seen.insert(topic).inserted { topics.append(topic) }
+        }
+        let chosen = settings.rooms.map { PushSubscription(endpoint: $0.endpoint, room: $0.room) }
+        for space in spaces {
+            add(PushSubscription(endpoint: space.endpoint))
+            guard Mainframe.isMainframe(space.endpoint) else { continue }
+            for room in rooms {
+                // Keeps the chosen topic's own endpoint, so its notifications still match.
+                add(chosen.first { Mainframe.isMainframe($0.endpoint) && $0.room == room.id }
+                    ?? PushSubscription(endpoint: space.endpoint, room: room.id))
+            }
+            chosen.filter { Mainframe.isMainframe($0.endpoint) }.forEach(add)
+        }
+        chosen.forEach(add)
+        return topics
+    }
 
     /// A name for a topic whose state has not been read yet.
     @Sendable public func displayName(for topic: PushSubscription) -> String {
