@@ -69,4 +69,4 @@ Start it with the session through one of:
 - `exec-once = spacestate-desktop` in `hyprland.conf`, or `exec` in Sway or i3
 
 Messages go to stderr (the journal under systemd). Launching it again does not
-start a second instance.
+start a second instance; it says so and exits.
