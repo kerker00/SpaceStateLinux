@@ -1,0 +1,17 @@
+# Changelog
+
+## 0.1.0 — 2026-11-02
+
+First version, as source only. It is tested on Hyprland with the Omarchy shell; other
+desktops should work through the same D-Bus standards but have not been checked.
+
+- `spacestate-desktop`: a background service that shows a notification when a followed
+  space or Mainframe room opens or closes, and reads the current states after every
+  connection, so a change missed while offline is shown once.
+- A tray icon (StatusNotifierItem) that shows whether anything followed is open, with
+  a menu listing each space and room. Without a tray host the service keeps running.
+- `spacestate-settings`: a GTK 4 window to search the SpacePush directory, choose spaces
+  and Mainframe rooms, and set autostart and the servers.
+- Reads and writes SpaceStateCLI's `spaces` file; rooms and settings are in `desktop.json`.
+
+Not included yet: packages, translations, and an application icon.
