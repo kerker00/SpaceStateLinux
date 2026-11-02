@@ -1,0 +1,37 @@
+# Maintainer: Markus Mueller <reg@grafixmafia.net>
+pkgname=spacestate-desktop
+pkgver=0.2.0
+pkgrel=1
+pkgdesc='Desktop notifications and a tray icon for when hackerspaces open or close'
+arch=(x86_64 aarch64)
+url='https://github.com/kerker00/SpaceStateLinux'
+license=(MIT)
+depends=(glib2 gtk4 hicolor-icon-theme)
+makedepends=(swift-language gettext)
+optdepends=('snixembed: tray icon on bars that only speak XEmbed')
+options=(!debug)
+source=("$pkgname-$pkgver.tar.gz::$url/archive/refs/tags/$pkgver.tar.gz")
+sha256sums=('SKIP')
+
+build() {
+    cd "SpaceStateLinux-$pkgver"
+    swift build -c release --static-swift-stdlib --disable-sandbox
+    msgfmt --output-file=de.mo po/de.po
+}
+
+check() {
+    cd "SpaceStateLinux-$pkgver"
+    swift test --disable-sandbox
+}
+
+package() {
+    cd "SpaceStateLinux-$pkgver"
+    install -Dm755 -t "$pkgdir/usr/bin" .build/release/spacestate-desktop .build/release/spacestate-settings
+    install -Dm644 -t "$pkgdir/usr/share/applications" contrib/net.grafixmafia.SpaceState.Settings.desktop
+    install -Dm644 de.mo "$pkgdir/usr/share/locale/de/LC_MESSAGES/spacestate.mo"
+    install -Dm644 -t "$pkgdir/usr/share/icons/hicolor/scalable/apps" data/icons/hicolor/scalable/apps/*.svg
+    install -Dm644 -t "$pkgdir/usr/share/icons/hicolor/scalable/status" data/icons/hicolor/scalable/status/*.svg
+    sed 's|^ExecStart=.*|ExecStart=/usr/bin/spacestate-desktop|' contrib/spacestate-desktop.service \
+        | install -Dm644 /dev/stdin "$pkgdir/usr/lib/systemd/user/spacestate-desktop.service"
+    install -Dm644 LICENSE.MD "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+}
