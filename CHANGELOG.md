@@ -5,6 +5,8 @@
 - While the change stream stays unavailable, for example at the server's connection
   limit, read the states every few minutes, so notifications continue with a delay.
 - Do not log reads that a configuration reload cancels.
+- Add a German translation, an application icon and an AUR package definition.
+- Use the same state texts as the SpaceState apps: "Keyholders only" and "Members only".
 
 ## 0.1.0 — 2026-11-02
 

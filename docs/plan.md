@@ -184,7 +184,7 @@ no Swift installation.
 | P3 | Tray: SNI and dbusmenu | icon and menu in Waybar, KDE, XFCE. **Status:** icon and menu seen in the Omarchy shell's bar, and checked over D-Bus; Waybar, KDE and XFCE not yet checked |
 | P4 | Settings window as `spacestate-settings`: directory search, rooms, autostart; service reloads on change | spaces managed without editing files. **Status:** works on Hyprland/Omarchy, driven through the accessibility interface and by hand |
 | P7 | Release 0.1.0, source only, tested on Hyprland/Omarchy | tagged. Moved ahead of packaging, so a running version is available early |
-| P5 | Packaging: AUR, then Flatpak | install on a fresh Arch and a fresh Fedora VM |
+| P5 | Packaging: AUR, then Flatpak | install on a fresh Arch and a fresh Fedora VM. **Status:** PKGBUILD builds and its contents run in German; not published, and not installed on a fresh system. Flatpak not started |
 | P6 | Desktop matrix: GNOME, Sway/niri, i3, Cinnamon/MATE; fixes and docs | smoke checklist passes, gaps documented |
 | P8 | Release 0.2.0 | tagged, packages published |
 

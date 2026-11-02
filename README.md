@@ -4,7 +4,7 @@ Linux desktop app for [SpaceState](https://github.com/kerker00/SpaceState): desk
 
 It builds on [SpaceStateKit](https://github.com/kerker00/SpaceStateKit) and receives changes from [SpacePush](https://github.com/kerker00/SpacePush) through its change stream. First target is Hyprland; GNOME, KDE Plasma, XFCE and other tiling window managers follow.
 
-Status: 0.1.0, source only, tested on Hyprland with the Omarchy shell. Packages and other desktops follow. See [CHANGELOG.md](CHANGELOG.md), [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
+Status: 0.1.0, source only, tested on Hyprland with the Omarchy shell. Other desktops follow. See [CHANGELOG.md](CHANGELOG.md), [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
 
 ## spacestate-desktop
 
@@ -91,3 +91,14 @@ It only writes the configuration files, and the running service reloads them. Li
 it does not use in `spaces` stay as they are, and a `desktop.json` it cannot read is
 reported and left alone. The switch manages an XDG autostart entry; a systemd user
 unit or `exec-once` is not shown there.
+
+## Translations
+
+Texts are in English, with gettext catalogues in `po/`. After changing a text, run
+`po/update.sh` and translate what is new; `po/check.sh` fails on anything missing.
+Without an installed catalogue, `SPACESTATE_LOCALEDIR` points to another locale directory.
+
+## Packages
+
+`packaging/aur/PKGBUILD` builds an Arch package. Its build needs `swift-language`,
+which `swift-bin` from the AUR provides.

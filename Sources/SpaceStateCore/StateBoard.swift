@@ -34,8 +34,8 @@ public struct AlertTexts: Sendable {
         switch state {
         case "open": translate("Open")
         case "closed": translate("Closed")
-        case "keyholder": translate("Keyholder present")
-        case "member": translate("Open for members")
+        case "keyholder": translate("Keyholders only")
+        case "member": translate("Members only")
         case "open_plus": translate("Open+")
         case "closing": translate("Closing soon")
         default: state
