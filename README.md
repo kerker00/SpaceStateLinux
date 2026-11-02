@@ -4,7 +4,7 @@ Linux desktop app for [SpaceState](https://github.com/kerker00/SpaceState): desk
 
 It builds on [SpaceStateKit](https://github.com/kerker00/SpaceStateKit) and receives changes from [SpacePush](https://github.com/kerker00/SpacePush) through its change stream. First target is Hyprland; GNOME, KDE Plasma, XFCE and other tiling window managers follow.
 
-Status: in development (phase P3: tray icon). See [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
+Status: in development (phase P4: settings window). See [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
 
 ## spacestate-desktop
 
@@ -45,8 +45,10 @@ The service reloads when they change.
 
 ```sh
 swift build -c release
-cp .build/release/spacestate-desktop ~/.local/bin/
+cp .build/release/spacestate-desktop .build/release/spacestate-settings ~/.local/bin/
 ```
+
+Building needs the GLib and GTK 4 development files, as `spacestate-settings` is in the same package.
 
 To develop against a SpaceStateKit checkout:
 `SPACESTATEKIT_PATH=../SpaceStateKit swift build`.
@@ -70,3 +72,18 @@ Start it with the session through one of:
 
 Messages go to stderr (the journal under systemd). Launching it again does not
 start a second instance; it says so and exits.
+
+## spacestate-settings
+
+The settings window, a separate program that needs GTK 4.12 or later. The tray menu
+and a click on a notification open it, and so does the launcher with
+`contrib/net.grafixmafia.SpaceState.Settings.desktop` in `~/.local/share/applications/`.
+
+- **Spaces:** search the SpacePush directory, add and remove spaces.
+- **Mainframe Rooms:** choose rooms to follow.
+- **General:** start with the session, and the servers under Advanced.
+
+It only writes the configuration files, and the running service reloads them. Lines
+it does not use in `spaces` stay as they are, and a `desktop.json` it cannot read is
+reported and left alone. The switch manages an XDG autostart entry; a systemd user
+unit or `exec-once` is not shown there.
