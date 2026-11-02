@@ -48,7 +48,7 @@ swift build -c release
 cp .build/release/spacestate-desktop ~/.local/bin/
 ```
 
-Until SpaceStateKit 0.4.0 is released, build against a checkout:
+To develop against a SpaceStateKit checkout:
 `SPACESTATEKIT_PATH=../SpaceStateKit swift build`.
 
 Tray hosts find the icons by name, so install them into the icon theme:
