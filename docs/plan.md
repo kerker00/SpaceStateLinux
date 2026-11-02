@@ -44,8 +44,9 @@ Consequences:
   so hosts find them by name and tint them like other panel icons. The Omarchy
   shell (quickshell) loads an icon outside a theme from
   `<IconThemePath>/<IconName>` without a file extension, and Qt only sees icon
-  directories that existed when the shell started. So development builds publish
-  extensionless links, and packages must install into hicolor.
+  directories that existed when the shell started. So packages install into hicolor,
+  and the service also publishes extensionless links to the icons it finds there,
+  which covers a new directory without a restart of the shell.
 - **Autostart** is written as an XDG autostart entry, which most desktops honour,
   or requested from the Background portal under Flatpak. A systemd user unit is
   documented for tiling setups.

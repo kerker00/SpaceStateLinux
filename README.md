@@ -64,10 +64,7 @@ mkdir -p ~/.local/share/icons/hicolor/scalable/status
 cp data/icons/hicolor/scalable/status/*.svg ~/.local/share/icons/hicolor/scalable/status/
 ```
 
-On the Omarchy shell, restart the shell or log in again if that directory is new.
-
-The Omarchy shell only sees icon directories that existed when it started. During
-development, `SPACESTATE_ICONDIR=data/icons/hicolor/scalable/status` uses the
+During development, `SPACESTATE_ICONDIR=data/icons/hicolor/scalable/status` uses the
 repository's icons without installing them.
 
 Start it with the session through one of:

@@ -28,9 +28,9 @@ func translate(_ text: String) -> String {
 
 let textDomain = "spacestate"
 
-/// Development builds only, as packages install the icons into hicolor: links to the
-/// `.svg` files in a new directory per run. The Omarchy shell loads an icon outside a
-/// theme from `<IconThemePath>/<IconName>` without an extension, and caches by that path.
+/// Links to the `.svg` files in a new directory per run. The Omarchy shell loads an icon
+/// outside a known theme directory from `<IconThemePath>/<IconName>` without an extension,
+/// and caches by that path. Hosts that find the name in the theme do not use it.
 func publishIcons(from source: String) -> String? {
     let files = FileManager.default
     let runtime = ProcessInfo.processInfo.environment["XDG_RUNTIME_DIR"] ?? NSTemporaryDirectory()

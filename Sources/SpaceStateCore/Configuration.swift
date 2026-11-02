@@ -23,6 +23,18 @@ public enum Paths {
         configDirectory(environment).appending(path: "desktop.json")
     }
 
+    /// Where the tray icons are installed, searching like the icon theme specification:
+    /// `XDG_DATA_HOME`, then `XDG_DATA_DIRS`. Nil when they are not installed.
+    public static func installedIcons(_ environment: [String: String] = ProcessInfo.processInfo.environment,
+                                      exists: (String) -> Bool = { FileManager.default.fileExists(atPath: $0) }) -> String? {
+        let home = environment["XDG_DATA_HOME"].flatMap { $0.hasPrefix("/") ? $0 : nil }
+            ?? environment["HOME"].map { "\($0)/.local/share" }
+        let shared = environment["XDG_DATA_DIRS"].flatMap { $0.isEmpty ? nil : $0 } ?? "/usr/local/share:/usr/share"
+        let roots = [home].compactMap { $0 } + shared.split(separator: ":").map(String.init).filter { $0.hasPrefix("/") }
+        return roots.map { "\($0)/icons/hicolor/scalable/status" }
+            .first { exists("\($0)/net.grafixmafia.SpaceState-open-symbolic.svg") }
+    }
+
     /// The XDG autostart entry that starts the service with the session.
     public static func autostartEntry(_ environment: [String: String] = ProcessInfo.processInfo.environment) -> URL {
         configDirectory(environment).deletingLastPathComponent()

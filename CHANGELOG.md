@@ -6,6 +6,8 @@
   limit, read the states every few minutes, so notifications continue with a delay.
 - A saved space outside SpacePush's directory no longer stops all notifications. The
   server refuses the whole stream then, so the states are read every five minutes.
+- The tray icon shows right after installing, without restarting the Omarchy shell or
+  logging in again.
 - A lost log no longer ends the service, for example after the terminal it started from
   closed.
 - The settings window lists all spaces before you type, yours first, and also finds them
