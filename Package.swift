@@ -14,14 +14,17 @@ let package = Package(
     targets: [
         // GLib and GIO headers through pkg-config; the service needs no widget toolkit.
         .systemLibrary(name: "CGio", pkgConfig: "gio-2.0", providers: [.apt(["libglib2.0-dev"]), .yum(["glib2-devel"])]),
+        // StatusNotifierItem and com.canonical.dbusmenu over GDBus, in C because GVariant
+        // construction relies on variadic functions that Swift cannot call.
+        .target(name: "CStatusNotifier", dependencies: ["CGio"]),
         // Configuration, current states and notification decisions; no GLib or GTK.
         .target(name: "SpaceStateCore", dependencies: [
             .product(name: "SpaceAPI", package: "SpaceStateKit"),
             .product(name: "MainframeStatus", package: "SpaceStateKit"),
             .product(name: "SpacePushClient", package: "SpaceStateKit"),
         ]),
-        // The background service: notifications for the followed spaces and rooms.
-        .executableTarget(name: "SpaceStateDesktop", dependencies: ["SpaceStateCore", "CGio"]),
+        // The background service: notifications and a tray icon for the followed spaces and rooms.
+        .executableTarget(name: "SpaceStateDesktop", dependencies: ["SpaceStateCore", "CGio", "CStatusNotifier"]),
         .testTarget(name: "SpaceStateCoreTests", dependencies: [
             "SpaceStateCore",
             .product(name: "SpaceAPI", package: "SpaceStateKit"),

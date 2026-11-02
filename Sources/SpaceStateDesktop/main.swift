@@ -1,22 +1,29 @@
 import CGio
+import CStatusNotifier
 import Foundation
 import SpaceStateCore
 
 // spacestate-desktop: a background GApplication (GIO only) that shows a notification
-// when a followed space or Mainframe room opens or closes.
+// when a followed space or Mainframe room opens or closes, and their state in a tray icon.
 
 let version = "0.1.0-dev"
+let settingsProgram = "spacestate-settings"
 
 /// Lives for the whole process. All fields are used on the GLib main loop only.
 final class DesktopApp: @unchecked Sendable {
     let app: UnsafeMutablePointer<GApplication>
+    let texts = AlertTexts(translate: translate)
     var configuration: Configuration?
     var task: Task<Void, Never>?
     var monitor: UnsafeMutablePointer<GFileMonitor>?
     var reloadScheduled = false
+    var tray: OpaquePointer?
+    var trayStatus: TrayStatus?
 
     init() {
         app = g_application_new("net.grafixmafia.SpaceState", GApplicationFlags(rawValue: 0))
+        g_application_add_main_option(app, "no-tray", 0, GOptionFlags(rawValue: 0), G_OPTION_ARG_NONE,
+                                      "Show notifications only, without a tray icon", nil)
     }
 
     var context: UnsafeMutableRawPointer { Unmanaged.passUnretained(self).toOpaque() }
@@ -45,8 +52,55 @@ final class DesktopApp: @unchecked Sendable {
         }
         g_unix_signal_add(SIGTERM, quit, context)
         g_unix_signal_add(SIGINT, quit, context)
+        if !CommandLine.arguments.contains("--no-tray") { startTray() }
         watchConfiguration()
         reload()
+    }
+
+    /// Without a tray host the item waits unseen, and registers if a host appears later.
+    func startTray() {
+        let clicked: @convention(c) (Int32, UnsafeMutableRawPointer?) -> Void = { id, data in
+            DesktopApp.from(data).menuClicked(id)
+        }
+        tray = sn_item_new("spacestate", "SpaceState", iconName(.unknown), nil, clicked, context)
+        if let directory = ProcessInfo.processInfo.environment["SPACESTATE_ICONDIR"], let links = publishIcons(from: directory) {
+            sn_item_set_icon_theme_path(tray, links)
+        }
+    }
+
+    func iconName(_ icon: TrayStatus.Icon) -> String {
+        "net.grafixmafia.SpaceState-\(icon.rawValue)-symbolic"
+    }
+
+    func updateTray(_ status: TrayStatus) {
+        guard let tray, status != trayStatus else { return }
+        trayStatus = status
+        sn_item_set_icon(tray, iconName(status.icon), status.tooltip)
+        let items = TrayMenu(status, settingsAvailable: settingsInstalled, texts: texts).items
+        // The C side copies the labels, so they only have to live for this call.
+        let labels = items.map { strdup($0.label)! }
+        defer { labels.forEach { free($0) } }
+        var menu = zip(items, labels).map { item, label in
+            SnMenuItem(id: item.id, label: UnsafePointer(label), enabled: item.enabled)
+        }
+        sn_item_set_menu(tray, &menu, Int32(menu.count))
+    }
+
+    var settingsInstalled: Bool {
+        guard let path = g_find_program_in_path(settingsProgram) else { return false }
+        g_free(path)
+        return true
+    }
+
+    func menuClicked(_ id: Int32) {
+        switch id {
+        case TrayMenu.settingsId:
+            if g_spawn_command_line_async(settingsProgram, nil) == 0 { log("Cannot start \(settingsProgram).") }
+        case TrayMenu.quitId:
+            g_application_quit(app)
+        default:
+            break
+        }
     }
 
     /// Reloads when a file in the config directory changes, e.g. after `spacestate add`.
@@ -87,8 +141,9 @@ final class DesktopApp: @unchecked Sendable {
         configuration = loaded
         let service = DesktopService(
             configuration: loaded, userAgent: "spacestate-desktop/\(version)",
-            texts: AlertTexts(translate: translate),
+            texts: texts,
             show: { [unowned self] alert in onMainLoop { self.notify(alert) } },
+            status: { [unowned self] status in onMainLoop { self.updateTray(status) } },
             log: log)
         // The previous stream ends before the next one opens.
         let previous = task

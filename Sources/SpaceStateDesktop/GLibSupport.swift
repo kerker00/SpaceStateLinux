@@ -28,6 +28,28 @@ func translate(_ text: String) -> String {
 
 let textDomain = "spacestate"
 
+/// Development builds only, as packages install the icons into hicolor: links to the
+/// `.svg` files in a new directory per run. The Omarchy shell loads an icon outside a
+/// theme from `<IconThemePath>/<IconName>` without an extension, and caches by that path.
+func publishIcons(from source: String) -> String? {
+    let files = FileManager.default
+    let runtime = ProcessInfo.processInfo.environment["XDG_RUNTIME_DIR"] ?? NSTemporaryDirectory()
+    let base = URL(filePath: runtime).appending(path: "spacestate-icons")
+    let directory = base.appending(path: String(Int(Date().timeIntervalSince1970)))
+    let sourceDirectory = URL(filePath: source)
+    guard let names = try? files.contentsOfDirectory(atPath: source) else {
+        log("SPACESTATE_ICONDIR: cannot read \(source).")
+        return nil
+    }
+    try? files.removeItem(at: base)
+    try? files.createDirectory(at: directory, withIntermediateDirectories: true)
+    for name in names where name.hasSuffix(".svg") {
+        try? files.createSymbolicLink(at: directory.appending(path: String(name.dropLast(4))),
+                                      withDestinationURL: sourceDirectory.appending(path: name))
+    }
+    return directory.path
+}
+
 func log(_ line: String) {
     FileHandle.standardError.write(Data("\(line)\n".utf8))
 }
