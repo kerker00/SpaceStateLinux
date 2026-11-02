@@ -21,6 +21,29 @@ struct ConfigurationTests {
         #expect(configuration.subscriptions.filter { $0.room != nil }.map(\.room) == ["lab3d", "gone"])
     }
 
+    @Test func roomsForDisplayNeverMakeTheServerRefuseTheStream() {
+        let mainframe = URL(string: "https://status.mainframe.io/api/spaceInfo")!
+        let chosen = PushSubscription(endpoint: mainframe, room: "lab3d")
+        let rooms = [RoomChoice(id: "radstelle", name: "Radstelle"), RoomChoice(id: "lab3d", name: "3D Lab"), RoomChoice(id: "machining", name: "Machining")]
+        func spaces(_ count: Int) -> [SavedSpace] {
+            [SavedSpace(endpoint: mainframe)] + (1..<count).map { SavedSpace(endpoint: URL(string: "https://example.org/\($0)")!) }
+        }
+        let settings = DesktopSettings(rooms: [.init(endpoint: mainframe, room: "lab3d")])
+        // Room for one more: the chosen room and one other stay, in their order.
+        let close = Configuration(spaces: spaces(48), settings: settings)
+        #expect(close.displayedTopics(rooms: rooms).count == 50)
+        #expect(close.displayedTopics(rooms: rooms).filter { $0.room != nil }.map(\.room) == ["radstelle", "lab3d"])
+        // Full: only what notifies is left.
+        let full = Configuration(spaces: spaces(49), settings: settings)
+        #expect(full.fitsTheStream)
+        #expect(full.displayedTopics(rooms: rooms).count == 50)
+        #expect(full.displayedTopics(rooms: rooms).filter { $0.room != nil } == [chosen])
+        // Chosen topics are never dropped, even if the stream will be refused.
+        let over = Configuration(spaces: spaces(50), settings: settings)
+        #expect(!over.fitsTheStream)
+        #expect(over.displayedTopics(rooms: rooms).count == 51)
+    }
+
     @Test func roomsCountOnlyWhileMainframeIsSaved() {
         let mainframe = URL(string: "https://status.mainframe.io/api/spaceInfo")!
         let other = URL(string: "https://example.org/spaceapi.json")!

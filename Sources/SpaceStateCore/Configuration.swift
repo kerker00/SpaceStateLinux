@@ -168,12 +168,19 @@ public struct Configuration: Sendable, Equatable {
 
     public var pushServer: URL { settings.pushServer ?? DesktopSettings.defaultPushServer }
 
+    /// SpacePush's `stream_max_topics`. It refuses a whole stream with more than this.
+    public static let streamTopicLimit = 50
+
+    /// Whether notifications for all chosen topics can come through one stream.
+    public var fitsTheStream: Bool { subscriptions.count <= Self.streamTopicLimit }
+
     public var followsMainframe: Bool {
         spaces.contains { Mainframe.isMainframe($0.endpoint) }
     }
 
     /// What the tray lists: each saved space, with all rooms right after Mainframe.
-    /// Notifications remain for `subscriptions` only.
+    /// Notifications remain for `subscriptions` only. Rooms not chosen are only for display,
+    /// so they are left out where they would make the server refuse the stream.
     public func displayedTopics(rooms: [RoomChoice]) -> [PushSubscription] {
         var topics: [PushSubscription] = []
         var seen = Set<PushSubscription>()
@@ -191,7 +198,13 @@ public struct Configuration: Sendable, Equatable {
             }
             chosen.forEach(add)
         }
-        return topics
+        let wanted = Set(subscriptions)
+        var excess = topics.count - Self.streamTopicLimit
+        return topics.reversed().filter { topic in
+            guard excess > 0, !wanted.contains(topic) else { return true }
+            excess -= 1
+            return false
+        }.reversed()
     }
 
     /// A name for a topic whose state has not been read yet.

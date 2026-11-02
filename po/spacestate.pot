@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-11-02 20:41+0100\n"
+"POT-Creation-Date: 2026-11-02 22:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -45,24 +45,24 @@ msgstr ""
 msgid "Test notification from SpacePush. This is not a status change."
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:49
+#: Sources/SpaceStateCore/TrayStatus.swift:46
 msgid "Unknown"
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:58
-#: Sources/SpaceStateCore/TrayStatus.swift:94
+#: Sources/SpaceStateCore/TrayStatus.swift:54
+#: Sources/SpaceStateCore/TrayStatus.swift:90
 msgid "No spaces followed"
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:62
+#: Sources/SpaceStateCore/TrayStatus.swift:58
 msgid "Not connected"
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:98
+#: Sources/SpaceStateCore/TrayStatus.swift:94
 msgid "Settings…"
 msgstr ""
 
-#: Sources/SpaceStateCore/TrayStatus.swift:100
+#: Sources/SpaceStateCore/TrayStatus.swift:96
 msgid "Quit"
 msgstr ""
 
@@ -110,19 +110,24 @@ msgstr ""
 msgid "Add"
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:338
+#: Sources/SpaceStateSettings/main.swift:281
+#, c-format
+msgid "With more than %d spaces and rooms, notifications come up to five minutes late."
+msgstr ""
+
+#: Sources/SpaceStateSettings/main.swift:343
 msgid "Could not load the Mainframe rooms."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:339
+#: Sources/SpaceStateSettings/main.swift:344
 msgid "Loading the rooms…"
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:350
+#: Sources/SpaceStateSettings/main.swift:355
 msgid "spacestate-desktop is not on your PATH, so autostart cannot start it."
 msgstr ""
 
-#: Sources/SpaceStateSettings/main.swift:368
+#: Sources/SpaceStateSettings/main.swift:373
 msgid "Saved."
 msgstr ""
 
