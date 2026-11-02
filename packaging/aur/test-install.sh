@@ -26,6 +26,13 @@ if ldd /usr/bin/spacestate-desktop /usr/bin/spacestate-settings | grep -E 'not f
     exit 1
 fi
 spacestate-desktop --help | grep -- --no-tray
-spacestate-settings --help > /dev/null
+# The window needs a display, so it starts on a virtual one and must still run when stopped.
+pacman -S --noconfirm --needed xorg-server-xvfb xorg-xauth > /dev/null
+status=0
+timeout 8 xvfb-run -a dbus-run-session -- spacestate-settings || status=$?
+if [ "$status" != 124 ]; then
+    echo "spacestate-settings ended by itself with status $status." >&2
+    exit 1
+fi
 test -s /usr/share/locale/de/LC_MESSAGES/spacestate.mo
 echo 'The package installs and runs.'
