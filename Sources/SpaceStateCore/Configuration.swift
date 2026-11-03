@@ -35,6 +35,17 @@ public enum Paths {
             .first { exists("\($0)/net.grafixmafia.SpaceState-open-symbolic.svg") }
     }
 
+    /// Where the translations are: `SPACESTATE_LOCALEDIR`, otherwise `share/locale` beside the
+    /// program's `bin` directory, so an installation under any prefix finds its own.
+    public static func localeDirectory(_ environment: [String: String] = ProcessInfo.processInfo.environment,
+                                       executable: String? = Bundle.main.executablePath) -> String {
+        if let directory = environment["SPACESTATE_LOCALEDIR"] { return directory }
+        guard let executable else { return "/usr/share/locale" }
+        return URL(filePath: executable).resolvingSymlinksInPath()
+            .deletingLastPathComponent().deletingLastPathComponent()
+            .appending(path: "share/locale").path
+    }
+
     /// The XDG autostart entry that starts the service with the session.
     public static func autostartEntry(_ environment: [String: String] = ProcessInfo.processInfo.environment) -> URL {
         configDirectory(environment).deletingLastPathComponent()

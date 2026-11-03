@@ -35,6 +35,13 @@ struct ConfigurationTests {
         #expect(with.subscriptions == [PushSubscription(endpoint: mainframe), PushSubscription(endpoint: mainframe, room: "lab3d")])
     }
 
+    @Test func translationsAreFoundBesideTheProgram() {
+        #expect(Paths.localeDirectory([:], executable: "/usr/bin/spacestate-desktop") == "/usr/share/locale")
+        #expect(Paths.localeDirectory([:], executable: "/home/u/.local/bin/spacestate-settings") == "/home/u/.local/share/locale")
+        #expect(Paths.localeDirectory(["SPACESTATE_LOCALEDIR": "/l"], executable: "/usr/bin/spacestate-desktop") == "/l")
+        #expect(Paths.localeDirectory([:], executable: nil) == "/usr/share/locale")
+    }
+
     @Test func installedIconsAreFoundLikeTheIconThemeSpecificationSays() {
         let icon = "icons/hicolor/scalable/status/net.grafixmafia.SpaceState-open-symbolic.svg"
         func find(_ environment: [String: String], in roots: [String]) -> String? {

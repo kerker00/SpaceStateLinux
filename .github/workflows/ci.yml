@@ -11,12 +11,13 @@ jobs:
     runs-on: ${{ matrix.runner }}
     container: swift:6.2-noble
     steps:
-      - run: apt-get update && apt-get install -y --no-install-recommends pkg-config libglib2.0-dev libgtk-4-dev libgtk-4-bin xvfb xauth gettext desktop-file-utils
+      - run: apt-get update && apt-get install -y --no-install-recommends pkg-config libglib2.0-dev libgtk-4-dev libgtk-4-bin xvfb xauth gettext desktop-file-utils meson ninja-build
       - uses: actions/checkout@v4
       - run: swift --version
       # The tool needs a display to initialize GTK.
       - run: xvfb-run -a gtk4-builder-tool validate Sources/SpaceStateSettings/settings.ui
-      - run: desktop-file-validate contrib/*.desktop
       - run: po/check.sh
-      - run: swift build -c release --static-swift-stdlib
-      - run: swift test
+      - run: meson setup build --prefix=/usr
+      - run: meson compile -C build
+      - run: meson test -C build --print-errorlogs
+      - run: meson install -C build --destdir "$PWD/stage" && find stage -type f | sort

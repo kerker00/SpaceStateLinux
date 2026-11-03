@@ -1,0 +1,4 @@
+Sources/SpaceStateCore/StateBoard.swift
+Sources/SpaceStateCore/TrayStatus.swift
+Sources/SpaceStateSettings/main.swift
+Sources/SpaceStateSettings/settings.ui

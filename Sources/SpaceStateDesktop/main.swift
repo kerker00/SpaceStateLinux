@@ -209,7 +209,7 @@ final class DesktopApp: @unchecked Sendable {
 }
 
 setlocale(LC_ALL, "")
-bindtextdomain(textDomain, ProcessInfo.processInfo.environment["SPACESTATE_LOCALEDIR"] ?? "/usr/share/locale")
+bindtextdomain(textDomain, Paths.localeDirectory())
 bind_textdomain_codeset(textDomain, "UTF-8")
 g_set_application_name("SpaceState")
 

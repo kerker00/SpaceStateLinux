@@ -6,6 +6,9 @@ cd "$(dirname "$0")/.."
 template="$(mktemp)"
 trap 'rm -f "$template"' EXIT
 po/extract.sh "$template"
+# Meson's spacestate-pot target reads the files from POTFILES.
+{ grep -rl 'translate("' Sources --include='*.swift' | sort; echo Sources/SpaceStateSettings/settings.ui; } \
+    | diff -u po/POTFILES - || { echo 'po/POTFILES is out of date.' >&2; exit 1; }
 for po in po/*.po; do
     msgcmp "$po" "$template"
     msgfmt --check --output-file=/dev/null "$po"

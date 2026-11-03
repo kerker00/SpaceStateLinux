@@ -147,6 +147,9 @@ GTK code stays in a thin layer, and the logic stays in Core.
 | Flatpak (Flathub) | second | GNOME runtime plus `org.freedesktop.Sdk.Extension.swift6` (x86_64, aarch64); notification and Background portals; covers Fedora, Ubuntu, Debian and more |
 | Fedora Copr RPM, Debian/Ubuntu `.deb` | later | only if requested; built in CI |
 
+All channels build with Meson, which calls SwiftPM for the programs and installs
+the translations, icons, desktop entries and the systemd user unit.
+
 GTK is always linked dynamically from the system or runtime. Only the Swift
 runtime is linked statically (`--static-swift-stdlib`), so native packages need
 no Swift installation.
