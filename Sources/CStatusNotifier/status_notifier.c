@@ -114,7 +114,7 @@ static void emit(SnItem *item, const char *path, const char *interface, const ch
 static GVariant *item_get_property(GDBusConnection *connection, const char *sender, const char *path,
                                    const char *interface, const char *name, GError **error, gpointer data) {
     SnItem *item = data;
-    if (g_str_equal(name, "Category")) return g_variant_new_string("Communications");
+    if (g_str_equal(name, "Category")) return g_variant_new_string("ApplicationStatus");
     if (g_str_equal(name, "Id")) return g_variant_new_string(item->id);
     if (g_str_equal(name, "Title")) return g_variant_new_string(item->title);
     if (g_str_equal(name, "Status")) return g_variant_new_string("Active");

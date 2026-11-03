@@ -30,7 +30,8 @@ let textDomain = "spacestate"
 
 /// Links to the `.svg` files in a new directory per run. The Omarchy shell loads an icon
 /// outside a known theme directory from `<IconThemePath>/<IconName>` without an extension,
-/// and caches by that path. Hosts that find the name in the theme do not use it.
+/// and caches by that path. Plasma looks for `<IconThemePath>/<IconName>.svg`, so each icon
+/// is linked under both names. Hosts that find the name in the theme do not use it.
 func publishIcons(from source: String) -> String? {
     let files = FileManager.default
     let runtime = ProcessInfo.processInfo.environment["XDG_RUNTIME_DIR"] ?? NSTemporaryDirectory()
@@ -44,8 +45,10 @@ func publishIcons(from source: String) -> String? {
     try? files.removeItem(at: base)
     try? files.createDirectory(at: directory, withIntermediateDirectories: true)
     for name in names where name.hasSuffix(".svg") {
-        try? files.createSymbolicLink(at: directory.appending(path: String(name.dropLast(4))),
-                                      withDestinationURL: sourceDirectory.appending(path: name))
+        for link in [String(name.dropLast(4)), name] {
+            try? files.createSymbolicLink(at: directory.appending(path: link),
+                                          withDestinationURL: sourceDirectory.appending(path: name))
+        }
     }
     return directory.path
 }

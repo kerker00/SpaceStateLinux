@@ -27,7 +27,8 @@ check() {
 package() {
     cd "SpaceStateLinux-$pkgver"
     install -Dm755 -t "$pkgdir/usr/bin" .build/release/spacestate-desktop .build/release/spacestate-settings
-    install -Dm644 -t "$pkgdir/usr/share/applications" contrib/net.grafixmafia.SpaceState.Settings.desktop
+    install -Dm644 -t "$pkgdir/usr/share/applications" contrib/net.grafixmafia.SpaceState.Settings.desktop \
+        contrib/net.grafixmafia.SpaceState.desktop
     install -Dm644 de.mo "$pkgdir/usr/share/locale/de/LC_MESSAGES/spacestate.mo"
     install -Dm644 -t "$pkgdir/usr/share/icons/hicolor/scalable/apps" data/icons/hicolor/scalable/apps/*.svg
     install -Dm644 -t "$pkgdir/usr/share/icons/hicolor/scalable/status" data/icons/hicolor/scalable/status/*.svg
