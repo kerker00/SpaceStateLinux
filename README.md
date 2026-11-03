@@ -4,7 +4,8 @@ Linux desktop app for [SpaceState](https://github.com/kerker00/SpaceState): desk
 
 It builds on [SpaceStateKit](https://github.com/kerker00/SpaceStateKit) and receives changes from [SpacePush](https://github.com/kerker00/SpacePush) through its change stream. First target is Hyprland; GNOME, KDE Plasma, XFCE and other tiling window managers follow.
 
-Status: 0.1.0, source only, tested on Hyprland with the Omarchy shell. Other desktops follow. See [CHANGELOG.md](CHANGELOG.md), [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
+Status: 0.1.0, source only, tested on Hyprland with the Omarchy shell and on KDE Plasma 6.7
+(Wayland). Other desktops follow. See [CHANGELOG.md](CHANGELOG.md), [docs/plan.md](docs/plan.md) and [docs/architecture.drawio](docs/architecture.drawio).
 
 ## spacestate-desktop
 

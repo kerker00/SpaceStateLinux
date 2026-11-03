@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- KDE Plasma 6 shows the tray icon. Plasma looks for the icon file with its `.svg`
+  extension, which the service now publishes as well. The icon is listed under
+  "Application Status" in the system tray settings.
+- The AUR package installs the service's desktop entry, so Plasma shows the app's name
+  and icon on its notifications.
 - While the change stream stays unavailable, for example at the server's connection
   limit, read the states every few minutes, so notifications continue with a delay.
 - A saved space outside SpacePush's directory no longer stops all notifications. The
