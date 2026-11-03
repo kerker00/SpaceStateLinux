@@ -5,7 +5,8 @@
 - KDE Plasma 6 shows the tray icon. Plasma looks for the icon file with its `.svg`
   extension, which the service now publishes as well. The icon is listed under
   "Application Status" in the system tray settings.
-- With no space followed, the tray shows the closed door instead of a question mark.
+- The unknown state, also shown while no space is followed, is a door with a question
+  mark, so it matches the open and closed doors.
 - The AUR package installs the service's desktop entry, so Plasma shows the app's name
   and icon on its notifications.
 - While the change stream stays unavailable, for example at the server's connection

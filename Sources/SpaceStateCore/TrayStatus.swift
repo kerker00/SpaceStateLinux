@@ -49,8 +49,7 @@ extension StateBoard {
             TrayStatus.Line(name: entries[topic]?.name ?? name(topic), state: state.map(texts.describe) ?? unknown)
         }
         let open = known.compactMap { $0.flatMap(TrayStatus.isOpen) }
-        // With nothing followed nothing can be open, so the door shows closed rather than a question mark.
-        let icon: TrayStatus.Icon = open.contains(true) ? .open : open.isEmpty && !topics.isEmpty ? .unknown : .closed
+        let icon: TrayStatus.Icon = open.contains(true) ? .open : open.isEmpty ? .unknown : .closed
         let tooltip = if topics.isEmpty {
             texts.translate("No spaces followed")
         } else if connected {
