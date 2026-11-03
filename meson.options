@@ -1,0 +1,6 @@
+option('static_swift_stdlib', type: 'boolean', value: true,
+       description: 'Link the Swift runtime into the programs, so they run without a Swift installation')
+option('swiftpm_args', type: 'array', value: [],
+       description: 'Extra arguments for swift build and swift test, e.g. --disable-sandbox')
+option('systemd_user_unit_dir', type: 'string', value: '',
+       description: 'Where to install the systemd user unit (default: /usr/lib/systemd/user for /usr, else <datadir>/systemd/user)')

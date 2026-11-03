@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Build and install with Meson: `meson setup build`, `meson compile -C build`,
+  `meson install -C build`. It checks the dependencies and installs the programs,
+  translations, icons, launcher entries and a systemd user unit under any prefix.
+- The programs find their translations beside their own installation, also under
+  `/usr/local` or `~/.local`.
 - KDE Plasma 6 shows the tray icon. Plasma looks for the icon file with its `.svg`
   extension, which the service now publishes as well. The icon is listed under
   "Application Status" in the system tray settings.

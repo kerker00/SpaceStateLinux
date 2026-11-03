@@ -46,32 +46,44 @@ The service reloads when they change.
 
   `streamServer` is only needed when `/v1/stream` is served elsewhere than `pushServer`.
 
-### Build and run
+### Build and install
+
+Building needs Swift 6.2, Meson 1.3, Ninja, gettext and the GLib and GTK 4
+development files, as `spacestate-settings` is in the same package. `meson setup`
+checks for them and names what is missing.
+
+For your user only, into `~/.local`:
 
 ```sh
-swift build -c release
-cp .build/release/spacestate-desktop .build/release/spacestate-settings ~/.local/bin/
+meson setup build --prefix="$HOME/.local"
+meson compile -C build
+meson test -C build
+meson install -C build
 ```
 
-Building needs Swift 6.2 and the GLib and GTK 4 development files, as `spacestate-settings` is in the same package.
+For all users, `meson setup build` installs into `/usr/local`, and `sudo meson install -C build`
+does the installation. Remove it again with `ninja -C build uninstall`.
+
+This installs both programs, the translations, the icons into the hicolor theme, where
+tray hosts find them by name, the launcher entries, and a systemd user unit, and it
+updates the icon cache. Options (`meson configure build` lists all):
+
+- `-D static_swift_stdlib=false`: link the Swift runtime dynamically; the programs then
+  need a Swift installation to run.
+- `-D swiftpm_args=...`: extra arguments for SwiftPM, e.g. `--disable-sandbox` in package builds.
+- `-D systemd_user_unit_dir=...`: another place for the user unit.
+
+Packages use `meson setup build --prefix=/usr` and `meson install -C build --destdir "$pkgdir"`.
 
 To develop against a SpaceStateKit checkout:
-`SPACESTATEKIT_PATH=../SpaceStateKit swift build`.
-
-Tray hosts find the icons by name, so install them into the icon theme:
-
-```sh
-mkdir -p ~/.local/share/icons/hicolor/scalable/status
-cp data/icons/hicolor/scalable/status/*.svg ~/.local/share/icons/hicolor/scalable/status/
-```
-
+`SPACESTATEKIT_PATH=../SpaceStateKit meson compile -C build`, or `swift build` directly.
 During development, `SPACESTATE_ICONDIR=data/icons/hicolor/scalable/status` uses the
-repository's icons without installing them.
+repository's icons, and `SPACESTATE_LOCALEDIR` another locale directory, without installing them.
 
 Start it with the session through one of:
 - XDG autostart (GNOME, KDE Plasma, XFCE, Hyprland with uwsm):
   `cp contrib/net.grafixmafia.SpaceState.desktop ~/.config/autostart/`
-- a systemd user unit: see `contrib/spacestate-desktop.service`
+- the installed systemd user unit: `systemctl --user enable --now spacestate-desktop.service`
 - `exec-once = spacestate-desktop` in `hyprland.conf`, or `exec` in Sway or i3
 
 Messages go to stderr (the journal under systemd). Launching it again does not
@@ -80,8 +92,7 @@ start a second instance; it says so and exits.
 ## spacestate-settings
 
 The settings window, a separate program that needs GTK 4.12 or later. The tray menu
-and a click on a notification open it, and so does the launcher with
-`contrib/net.grafixmafia.SpaceState.Settings.desktop` in `~/.local/share/applications/`.
+and a click on a notification open it, and so does the launcher entry "SpaceState".
 
 - **Spaces:** all spaces of the SpacePush directory, yours first. Search by name or place,
   add and remove them.
@@ -98,8 +109,9 @@ unit or `exec-once` is not shown there.
 ## Translations
 
 Texts are in English, with gettext catalogues in `po/`. After changing a text, run
-`po/update.sh` and translate what is new; `po/check.sh` fails on anything missing.
-Without an installed catalogue, `SPACESTATE_LOCALEDIR` points to another locale directory.
+`po/update.sh` and translate what is new; `po/check.sh` fails on anything missing,
+and on a file with texts that is not in `po/POTFILES`. A new language goes into `po/LINGUAS`.
+The programs look for translations in `share/locale` beside their `bin` directory.
 
 ## Packages
 
