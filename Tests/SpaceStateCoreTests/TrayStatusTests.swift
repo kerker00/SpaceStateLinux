@@ -48,9 +48,9 @@ struct TrayStatusTests {
         #expect(status.tooltip == "Not connected")
     }
 
-    @Test func nothingFollowed() {
+    @Test func nothingFollowedShowsTheClosedDoor() {
         let status = StateBoard().trayStatus(following: [], connected: false, name: { _ in "" })
-        #expect(status == TrayStatus(icon: .unknown, lines: [], tooltip: "No spaces followed"))
+        #expect(status == TrayStatus(icon: .closed, lines: [], tooltip: "No spaces followed"))
     }
 
     @Test func menuHasLinesThenSettingsAndQuit() {
