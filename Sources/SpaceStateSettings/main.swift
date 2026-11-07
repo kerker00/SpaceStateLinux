@@ -267,12 +267,19 @@ final class SettingsApp: @unchecked Sendable {
                 gtk_button_set_label(UnsafeMutableRawPointer(button).assumingMemoryBound(to: GtkButton.self), title())
                 self.shownSpaces = try self.store.spaces()
                 self.updateRoomsPage()
-                self.show("")
+                self.showTopicLimit()
             } catch {
                 self.show(error)
             }
         }
         return row(choice.name, subtitle: choice.place, control: button)
+    }
+
+    /// Over SpacePush's limit the service still works, but only by reading now and then.
+    func showTopicLimit() {
+        let configuration = Configuration(spaces: (try? store.spaces()) ?? [], settings: (try? store.settings()) ?? DesktopSettings())
+        show(configuration.fitsTheStream ? "" : String(format: translate("With more than %d spaces and rooms, notifications come up to five minutes late."),
+                                                       Configuration.streamTopicLimit))
     }
 
     func updateRoomsPage() {
@@ -325,7 +332,7 @@ final class SettingsApp: @unchecked Sendable {
                     try self.store.setRoom(item.room, followed: gtk_check_button_get_active(button) != 0)
                     self.shownRooms = try self.store.settings().rooms
                     self.updateRoomsPage()
-                    self.show("")
+                    self.showTopicLimit()
                 } catch {
                     self.show(error)
                 }
